@@ -14,22 +14,27 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class Piece extends Drawable {
-    private final float RADIUS = 100;
+    private final int RADIUS = 50;
 
+    private int player;//0=brown, 1=red, so as to not confuse pieces with the triangle's colors
     private Paint color = new Paint();
     private int x, y;
     private int left, top, right, bottom;
     private boolean removed;
 
 
-    public Piece(int x, int y, int color) {
+    public Piece(int x, int y, int player) {
         this.x = x;
         this.y = y;
-        this.color.setColor(color);
-        this.left = x;
-        this.top = y;
-        this.right = (int) (x + RADIUS);
-        this.bottom = (int) (y + RADIUS);
+        this.player = player;
+        if(player == 1)
+            this.color.setColor(Color.rgb(190, 45, 50)); //red
+        else
+            this.color.setColor(Color.rgb(125, 100, 50)); //brown
+        this.left = x - RADIUS;
+        this.top = y + RADIUS;
+        this.right = x + RADIUS;
+        this.bottom = y - RADIUS;
     }
 
     @Override

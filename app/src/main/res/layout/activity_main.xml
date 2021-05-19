@@ -47,5 +47,38 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.95" />
 
+    <Button
+        android:id="@+id/roll_button"
+        android:layout_width="36dp"
+        android:layout_height="38dp"
+        android:paddingLeft="0dp"
+        android:paddingTop="0dp"
+        android:paddingRight="0dp"
+        android:paddingBottom="0dp"
+        android:text="start"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_vertical_mid_right"
+        app:layout_constraintStart_toStartOf="@+id/guideline_vertical_mid_left"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/firstDice"
+        android:layout_width="35dp"
+        android:layout_height="34dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_vertical_leftmost"
+         />
+
+    <ImageView
+        android:id="@+id/secondDice"
+        android:layout_width="35dp"
+        android:layout_height="34dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_vertical_leftmost"
+        app:layout_constraintTop_toTopOf="@+id/guideline_horizontal"
+         />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
