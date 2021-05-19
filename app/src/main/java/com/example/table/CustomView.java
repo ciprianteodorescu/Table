@@ -15,9 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CustomView extends View {
-    public List<Piece> pieces = new ArrayList<Piece>();
-    public List<Triangle> triangles = new ArrayList<Triangle>();
-
+    private List<Triangle> triangles = new ArrayList<Triangle>();
+    private boolean gameStarted = false;
     public int width;
     public int height;
 
@@ -26,25 +25,25 @@ public class CustomView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        if(gameStarted)
+            for(int i = 0; i < Triangle.TOTAL; i++){
+                triangles.get(i).draw(canvas);
+            }
 
-        Log.i("screenView", "- Drawn");
-        for(int i = 0; i < Triangle.TOTAL; i++){
-            triangles.get(i).draw(canvas);
-        }
-    }
-
-    public void setPieces(List<Piece> pieces) {
-        this.pieces = pieces;
     }
 
     public void setTriangles(List<Triangle> triangles) {
         this.triangles = triangles;
     }
+    public void setGameStarted(boolean gameStarted) {
+        this.gameStarted = gameStarted;
+    }
 
-    public void initializeTriangles() {
+    public List<Triangle> initializeTriangles() {
         for(int i = 1; i <= Triangle.TOTAL; i++) {
             this.triangles.add(new Triangle(i, width, height));
         }
+        return this.triangles;
     }
 
     //https://stackoverflow.com/questions/10866551/android-drawing-shapes-programmatically-on-a-view-in-layout

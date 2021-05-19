@@ -16,7 +16,7 @@ import androidx.annotation.Nullable;
 public class Piece extends Drawable {
     private final int RADIUS = 50;
 
-    private int player;//0=brown, 1=red, so as to not confuse pieces with the triangle's colors
+    private int player;//0=red, 1=brown, so as to not confuse pieces with the triangle's colors
     private Paint color = new Paint();
     private int x, y;
     private int left, top, right, bottom;
@@ -27,10 +27,10 @@ public class Piece extends Drawable {
         this.x = x;
         this.y = y;
         this.player = player;
-        if(player == 1)
+        if(player == 0)
             this.color.setColor(Color.rgb(190, 45, 50)); //red
         else
-            this.color.setColor(Color.rgb(125, 100, 50)); //brown
+            this.color.setColor(Color.rgb(145, 145, 145)); //brown
         this.left = x - RADIUS;
         this.top = y + RADIUS;
         this.right = x + RADIUS;
