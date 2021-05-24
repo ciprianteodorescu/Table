@@ -5,6 +5,8 @@ public class Player {
     private int color; //0=red, 1=brown
     private int piecesOnBoard;
     private int hitPieces;
+    private int availableMoves;
+    private boolean[] availableDice = new boolean[4];
     private boolean rolledDice;
     private boolean rolledDouble;
 
@@ -13,6 +15,11 @@ public class Player {
         this.color = color;
         this.piecesOnBoard = 15;
         this.hitPieces = 0;
+        this.availableMoves = 0;
+        this.availableDice[0] = false;
+        this.availableDice[1] = false;
+        this.availableDice[2] = false;
+        this.availableDice[3] = false;
         this.rolledDice = false;
         this.rolledDouble = false;
     }
@@ -32,6 +39,30 @@ public class Player {
 
     public void setHitPieces(int hitPieces) {
         this.hitPieces = hitPieces;
+    }
+
+    public int getAvailableMoves() {
+        return availableMoves;
+    }
+
+    public void setAvailableMoves(int availableMoves) {
+        this.availableMoves = availableMoves;
+    }
+
+    public boolean[] getAvailableDice() {
+        return availableDice;
+    }
+
+    public boolean isTurnFinished() {
+        return (!availableDice[0] && !availableDice[1] && !availableDice[2] && !availableDice[3]);
+    }
+
+    public void setAvailableDice(boolean[] availableDice) {
+        this.availableDice = availableDice;
+    }
+
+    public void setAvailableDice(boolean availableDie, int index) {
+        this.availableDice[index - 1] = availableDie;
     }
 
     public void setRolledDice(boolean rolledDice) {

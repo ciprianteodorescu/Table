@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Table</string>
+    <string name="roll">ROLL</string>
+    <string name="red_to_move">RED</string>
+    <string name="gray_to_move">GRAY</string>
+    <string name="turn_end">TURN END!</string>
 </resources>

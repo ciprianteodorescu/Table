@@ -1,5 +1,6 @@
 package com.example.table;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -9,6 +10,8 @@ import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -42,6 +45,7 @@ public class CustomView extends View {
     public List<Triangle> initializeTriangles() {
         for(int i = 1; i <= Triangle.TOTAL; i++) {
             this.triangles.add(new Triangle(i, width, height));
+            //Log.i("screenView", "("+width+", "+height+")");
         }
         return this.triangles;
     }
