@@ -20,6 +20,7 @@ import java.util.List;
 public class CustomView extends View {
     private List<Triangle> triangles = new ArrayList<Triangle>();
     private boolean gameStarted = false;
+    public double cutoutOffset;
     public int width;
     public int height;
 
@@ -44,8 +45,8 @@ public class CustomView extends View {
 
     public List<Triangle> initializeTriangles() {
         for(int i = 1; i <= Triangle.TOTAL; i++) {
-            this.triangles.add(new Triangle(i, width, height));
-            //Log.i("screenView", "("+width+", "+height+")");
+            this.triangles.add(new Triangle(i, width, height, cutoutOffset));
+            //Log.i("screenView (w, h)", "("+width+", "+height+")");
         }
         return this.triangles;
     }

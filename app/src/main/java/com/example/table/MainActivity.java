@@ -68,6 +68,13 @@ public class MainActivity extends AppCompatActivity {
         screenView = findViewById(R.id.screenView);
         //get screen height and width
         getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
+        //Log.i("cutout", ""+getWindowManager().getDefaultDisplay().getCutout().getBoundingRectLeft().width());
+        //https://developer.android.com/reference/android/view/DisplayCutout
+        try {
+            screenView.cutoutOffset = getWindowManager().getDefaultDisplay().getCutout().getBoundingRectLeft().width() + getWindowManager().getDefaultDisplay().getCutout().getBoundingRectRight().width();
+        } catch (Exception e) {
+            Log.i("cutout", "not present");
+        }
         screenView.width = displayMetrics.widthPixels;
         screenView.height = displayMetrics.heightPixels;
 

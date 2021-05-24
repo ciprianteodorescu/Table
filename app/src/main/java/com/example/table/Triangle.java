@@ -18,9 +18,13 @@ public class Triangle extends Drawable {
 
     private final double dist2Tr = 0.07; //distance between 2 triangles
     private final double xQ1Start = 0.56; //xQ1Start*screenWidth=x axis pos for 6th triangle
+    private final double xQ1End = 0.91;
     private final double xQ2Start = 0.085;
+    private final double xQ2End = 0.44;
     private final double xQ3Start = 0.085;
+    private final double xQ3End = 0.44;
     private final double xQ4Start = 0.56;
+    private final double xQ4End = 0.91;
     private final double yQ1Start = 0.99; //yQ1Start*screenHeight=y axis pos for 6th triangle
     private final double yQ2Start = 0.99;
     private final double yQ3Start = 0.01;
@@ -43,11 +47,11 @@ public class Triangle extends Drawable {
     private int movingX, movingY;
 
 
-    public Triangle(int trNo, int screenWidth, int screenHeight){
+    public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
         //Log.i("h,w = ", screenHeight + ", " + screenWidth);
-        this.screenWidth = screenWidth;
+        this.screenWidth = (int) (screenWidth - cutoutOffset);
         this.screenHeight = screenHeight;
-        RADIUS = (int) (screenWidth * dist2Tr / 3); //in order to fit 5 pieces per triangle
+        RADIUS = (int) ((screenWidth + screenHeight) * dist2Tr / 4.5); //in order to fit 5 pieces per triangle
         this.trNo = trNo;
         switch (trNo){
             case 1:
