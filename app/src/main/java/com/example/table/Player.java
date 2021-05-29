@@ -9,6 +9,7 @@ public class Player {
     private boolean[] availableDice = new boolean[4];
     private boolean rolledDice;
     private boolean rolledDouble;
+    private boolean canRemovePieces;
 
 
     public Player(int color) {
@@ -22,6 +23,7 @@ public class Player {
         this.availableDice[3] = false;
         this.rolledDice = false;
         this.rolledDouble = false;
+        this.canRemovePieces = false;
     }
 
     public void setPlayer(Player player) {
@@ -93,5 +95,11 @@ public class Player {
         return rolledDouble;
     }
 
+    public boolean getCanRemovePieces() {
+        return canRemovePieces;
+    }
 
+    public void setCanRemovePieces(boolean canRemovePieces) {
+        this.canRemovePieces = canRemovePieces;
+    }
 }

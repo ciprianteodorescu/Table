@@ -1,10 +1,9 @@
 package com.example.table;
 
-import androidx.appcompat.app.ActionBar;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -13,7 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     //List<Piece> pieces = new ArrayList<Piece>();
     List<Triangle> triangles = new ArrayList<Triangle>();
+    Piece hrPieces; //hit or removed pieces
 
     List<Player> players = new ArrayList<Player>();
     boolean playerToMove; // false = 0 or true = 1
@@ -45,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     int droppedTriangleNr; //number of the triangle the piece is moved to, >0
 
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,9 +101,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(changeToRoll){
-                    //TODO:start game
+                    //start game
                     //puts board in initial position
                     triangles = screenView.initializeTriangles();
+                    hrPieces = screenView.initializeHitPieces();
                     players.add(new Player(0)); // 0 = red
                     players.add(new Player(1)); // 1 = brown
                     screenView.setGameStarted(true);
@@ -191,79 +192,82 @@ public class MainActivity extends AppCompatActivity {
 
 
                 }
-
             }
         });
+    }
 
-
+    public boolean canRemovePieces() {
+        if(player.getColor() == 0) { //red ends on quarter 4 <=> triangles outside of [19, 24] must not have red pieces
+            for(int i = 0; i < 18; i++) {
+                if(triangles.get(i).getPieceColor() == 0 && triangles.get(i).getnPieces() > 0)
+                    return false;
+            }
+        } else if(player.getColor() == 1) { //brown ends on quarter 1 <=> triangles outside of [1, 6] must not have brown pieces
+            for(int i = 6; i < Triangle.TOTAL; i++) {
+                //Log.i("trNo, nPieces, PieceColor", ""+(i+1)+", "+triangles.get(i).getnPieces() + ", " + triangles.get(i).getPieceColor());
+                if(triangles.get(i).getPieceColor() == 1 && triangles.get(i).getnPieces() > 0)
+                    return false;
+            }
+        }
+        return true;
     }
 
     public boolean checkTurnEnd() {
         for(int pressedTr = 0; pressedTr < Triangle.TOTAL; pressedTr++) {
             if (player.getColor() == 0) {
                 if (player.getAvailableDice()[0])
-                    if ((pressedTr + diceVal1) < Triangle.TOTAL && (pressedTr + diceVal1) > 0)
-                        if (triangles.get(pressedTr + diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + diceVal1).getPieceColor() == -1) {
-                            triangles.get(pressedTr + diceVal1).setDrawPossibleMoves(true);
+                    if ((pressedTr + diceVal1) < Triangle.TOTAL && (pressedTr + diceVal1) >= 0)
+                        if (triangles.get(pressedTr + diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + diceVal1).getPieceColor() == -1  || triangles.get(pressedTr + diceVal1).getnPieces() == 1) {
                             return false;
                         }
                 if (player.getAvailableDice()[1])
-                    if ((pressedTr + diceVal2) < Triangle.TOTAL && (pressedTr + diceVal2) > 0)
-                        if (triangles.get(pressedTr + diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + diceVal2).getPieceColor() == -1){
-                            triangles.get(pressedTr + diceVal2).setDrawPossibleMoves(true);
+                    if ((pressedTr + diceVal2) < Triangle.TOTAL && (pressedTr + diceVal2) >= 0)
+                        if (triangles.get(pressedTr + diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + diceVal2).getPieceColor() == -1 || triangles.get(pressedTr + diceVal2).getnPieces() == 1){
                             return false;
                         }
                 if (player.getAvailableDice()[0] && player.getAvailableDice()[1])
-                    if ((pressedTr + diceVal1 + diceVal2) < Triangle.TOTAL && (pressedTr + diceVal1 + diceVal2) > 0)
-                        if (triangles.get(pressedTr + diceVal1 + diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + diceVal1 + diceVal2).getPieceColor() == -1){
-                            triangles.get(pressedTr + diceVal1 + diceVal2).setDrawPossibleMoves(true);
+                    if ((pressedTr + diceVal1 + diceVal2) < Triangle.TOTAL && (pressedTr + diceVal1 + diceVal2) >= 0)
+                        if (triangles.get(pressedTr + diceVal1 + diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + diceVal1 + diceVal2).getPieceColor() == -1 || triangles.get(pressedTr + diceVal1 + diceVal2).getnPieces() == 1){
                             return false;
                         }
                 if (player.getRolledDouble()) {
                     if (player.getAvailableDice()[0] && player.getAvailableDice()[1] && player.getAvailableDice()[2] && player.getAvailableDice()[3])
-                        if ((pressedTr + 2 * diceVal1 + 2 * diceVal2) < Triangle.TOTAL && (pressedTr + 2 * diceVal1 + 2 * diceVal2) > 0)
-                            if (triangles.get(pressedTr + 2 * diceVal1 + 2 * diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + 2 * diceVal1 + 2 * diceVal2).getPieceColor() == -1){
-                                triangles.get(pressedTr + 2 * diceVal1 + 2 * diceVal2).setDrawPossibleMoves(true);
+                        if ((pressedTr + 4 * diceVal1 ) < Triangle.TOTAL && (pressedTr + 4 * diceVal1) >= 0)
+                            if (triangles.get(pressedTr + 4 * diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + 4 * diceVal1).getPieceColor() == -1 || triangles.get(pressedTr + 4 * diceVal1).getnPieces() == 1){
                                 return false;
                             }
                     if (player.getAvailableDice()[0] && player.getAvailableDice()[1] && (player.getAvailableDice()[2] || player.getAvailableDice()[3]))
-                        if ((pressedTr + 2 * diceVal1 + diceVal2) < Triangle.TOTAL && (pressedTr + 2 * diceVal1 + diceVal2) > 0)
-                            if (triangles.get(pressedTr + 2 * diceVal1 + diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + 2 * diceVal1 + diceVal2).getPieceColor() == -1){
-                                triangles.get(pressedTr + 2 * diceVal1 + diceVal2).setDrawPossibleMoves(true);
+                        if ((pressedTr + 3 * diceVal1) < Triangle.TOTAL && (pressedTr + 3 * diceVal1) >= 0)
+                            if (triangles.get(pressedTr + 3 * diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + 3 * diceVal1).getPieceColor() == -1 || triangles.get(pressedTr + 3 * diceVal1).getnPieces() == 1){
                                 return false;
                             }
                 }
             }
             else if (player.getColor() == 1) {
                 if (player.getAvailableDice()[0])
-                    if ((pressedTr - diceVal1) < Triangle.TOTAL && (pressedTr - diceVal1) > 0)
-                        if (triangles.get(pressedTr - diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - diceVal1).getPieceColor() == -1){
-                            triangles.get(pressedTr - diceVal1).setDrawPossibleMoves(true);
+                    if ((pressedTr - diceVal1) < Triangle.TOTAL && (pressedTr - diceVal1) >= 0)
+                        if (triangles.get(pressedTr - diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - diceVal1).getPieceColor() == -1  || triangles.get(pressedTr - diceVal1).getnPieces() == 1){
                             return false;
                         }
                 if (player.getAvailableDice()[1])
-                    if ((pressedTr - diceVal2) < Triangle.TOTAL && (pressedTr - diceVal2) > 0)
-                        if (triangles.get(pressedTr - diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - diceVal2).getPieceColor() == -1){
-                            triangles.get(pressedTr - diceVal2).setDrawPossibleMoves(true);
+                    if ((pressedTr - diceVal2) < Triangle.TOTAL && (pressedTr - diceVal2) >= 0)
+                        if (triangles.get(pressedTr - diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - diceVal2).getPieceColor() == -1 || triangles.get(pressedTr - diceVal2).getnPieces() == 1){
                             return false;
                         }
                 if (player.getAvailableDice()[0] && player.getAvailableDice()[1])
-                    if ((pressedTr - diceVal1 - diceVal2) < Triangle.TOTAL && (pressedTr - diceVal1 - diceVal2) > 0)
-                        if (triangles.get(pressedTr - diceVal1 - diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - diceVal1 - diceVal2).getPieceColor() == -1){
-                            triangles.get(pressedTr - diceVal1 - diceVal2).setDrawPossibleMoves(true);
+                    if ((pressedTr - diceVal1 - diceVal2) < Triangle.TOTAL && (pressedTr - diceVal1 - diceVal2) >= 0)
+                        if (triangles.get(pressedTr - diceVal1 - diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - diceVal1 - diceVal2).getPieceColor() == -1 || triangles.get(pressedTr - diceVal1 - diceVal2).getnPieces() == 1){
                             return false;
                         }
                 if (player.getRolledDouble()) {
                     if (player.getAvailableDice()[0] && player.getAvailableDice()[1] && player.getAvailableDice()[2] && player.getAvailableDice()[3])
-                        if ((pressedTr - 2 * diceVal1 - 2 * diceVal2) < Triangle.TOTAL && (pressedTr - 2 * diceVal1 - 2 * diceVal2) > 0)
-                            if (triangles.get(pressedTr - 2 * diceVal1 - 2 * diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - 2 * diceVal1 - 2 * diceVal2).getPieceColor() == -1){
-                                triangles.get(pressedTr - 2 * diceVal1 - 2 * diceVal2).setDrawPossibleMoves(true);
+                        if ((pressedTr - 4 * diceVal1) < Triangle.TOTAL && (pressedTr - 4 * diceVal1) >= 0)
+                            if (triangles.get(pressedTr - 4 * diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - 4 * diceVal1).getPieceColor() == -1 || triangles.get(pressedTr - 4 * diceVal1).getnPieces() == 1){
                                 return false;
                             }
                     if (player.getAvailableDice()[0] && player.getAvailableDice()[1] && (player.getAvailableDice()[2] || player.getAvailableDice()[3]))
-                        if ((pressedTr - 2 * diceVal1 - diceVal2) < Triangle.TOTAL && (pressedTr - 2 * diceVal1 - diceVal2) > 0)
-                            if (triangles.get(pressedTr - 2 * diceVal1 - diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - 2 * diceVal1 - diceVal2).getPieceColor() == -1){
-                                triangles.get(pressedTr - 2 * diceVal1 - diceVal2).setDrawPossibleMoves(true);
+                        if ((pressedTr - 3 * diceVal1) < Triangle.TOTAL && (pressedTr - 3 * diceVal1) >= 0)
+                            if (triangles.get(pressedTr - 3 * diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - 3 * diceVal1).getPieceColor() == -1 || triangles.get(pressedTr - 3 * diceVal1).getnPieces() == 1){
                                 return false;
                             }
                 }
@@ -272,53 +276,93 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public void calculatePossibleMoves(int pressedTr) {
+    public void calculatePossibleMoves(int pressedTr) { //pressedTr=triangle index in list
         if(player.getColor() == 0) {
-            if (player.getAvailableDice()[0])
-                if ((pressedTr + diceVal1) < Triangle.TOTAL && (pressedTr + diceVal1) > 0)
-                    if (triangles.get(pressedTr + diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + diceVal1).getPieceColor() == -1)
+            if (player.getAvailableDice()[0]) {
+                if ((pressedTr + diceVal1) < Triangle.TOTAL && (pressedTr + diceVal1) >= 0)
+                    if (triangles.get(pressedTr + diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + diceVal1).getPieceColor() == -1 || triangles.get(pressedTr + diceVal1).getnPieces() == 1)
                         triangles.get(pressedTr + diceVal1).setDrawPossibleMoves(true);
-            if(player.getAvailableDice()[1])
-                if ((pressedTr + diceVal2) < Triangle.TOTAL && (pressedTr + diceVal2) > 0)
-                    if (triangles.get(pressedTr + diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + diceVal2).getPieceColor() == -1)
+                if(pressedTr + diceVal1 >= Triangle.TOTAL && player.getCanRemovePieces()) {
+                    hrPieces.setDrawRedPossible(true);
+                }
+            }
+            if(player.getAvailableDice()[1]) {
+                if ((pressedTr + diceVal2) < Triangle.TOTAL && (pressedTr + diceVal2) >= 0)
+                    if (triangles.get(pressedTr + diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + diceVal2).getPieceColor() == -1 || triangles.get(pressedTr + diceVal2).getnPieces() == 1)
                         triangles.get(pressedTr + diceVal2).setDrawPossibleMoves(true);
-            if(player.getAvailableDice()[0] && player.getAvailableDice()[1])
-                if ((pressedTr + diceVal1 + diceVal2) < Triangle.TOTAL && (pressedTr + diceVal1 + diceVal2) > 0)
-                    if (triangles.get(pressedTr + diceVal1 + diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + diceVal1 + diceVal2).getPieceColor() == -1)
+                if(pressedTr + diceVal2 >= Triangle.TOTAL && player.getCanRemovePieces()) {
+                    hrPieces.setDrawRedPossible(true);
+                }
+            }
+            if(player.getAvailableDice()[0] && player.getAvailableDice()[1]) {
+                if ((pressedTr + diceVal1 + diceVal2) < Triangle.TOTAL && (pressedTr + diceVal1 + diceVal2) >= 0)
+                    if (triangles.get(pressedTr + diceVal1 + diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + diceVal1 + diceVal2).getPieceColor() == -1 || triangles.get(pressedTr + diceVal1 + diceVal2).getnPieces() == 1)
                         triangles.get(pressedTr + diceVal1 + diceVal2).setDrawPossibleMoves(true);
+                if(pressedTr + diceVal1 + diceVal2 >= Triangle.TOTAL && player.getCanRemovePieces()) {
+                    hrPieces.setDrawRedPossible(true);
+                }
+            }
             if (player.getRolledDouble()){
-                if(player.getAvailableDice()[0] && player.getAvailableDice()[1] && player.getAvailableDice()[2] && player.getAvailableDice()[3])
-                    if((pressedTr + 2 * diceVal1 + 2 * diceVal2) < Triangle.TOTAL && (pressedTr + 2 * diceVal1 + 2 * diceVal2) > 0)
-                        if (triangles.get(pressedTr + 2 * diceVal1 + 2 * diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + 2 * diceVal1 + 2 * diceVal2).getPieceColor() == -1)
-                            triangles.get(pressedTr + 2 * diceVal1 + 2 * diceVal2).setDrawPossibleMoves(true);
-                if(player.getAvailableDice()[0] && player.getAvailableDice()[1] && (player.getAvailableDice()[2] || player.getAvailableDice()[3]))
-                    if((pressedTr + 2 * diceVal1 + diceVal2) < Triangle.TOTAL && (pressedTr + 2 * diceVal1 + diceVal2) > 0)
-                        if (triangles.get(pressedTr + 2 * diceVal1 + diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + 2 * diceVal1 + diceVal2).getPieceColor() == -1)
-                            triangles.get(pressedTr + 2 * diceVal1 + diceVal2).setDrawPossibleMoves(true);
+                if(player.getAvailableDice()[0] && player.getAvailableDice()[1] && player.getAvailableDice()[2] && player.getAvailableDice()[3]) {
+                    if((pressedTr + 4 * diceVal1) < Triangle.TOTAL && (pressedTr + 4 * diceVal1) >= 0)
+                        if (triangles.get(pressedTr + 4 * diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + 4 * diceVal1).getPieceColor() == -1 || triangles.get(pressedTr + 4 * diceVal1).getnPieces() == 1)
+                            triangles.get(pressedTr + 4 * diceVal1).setDrawPossibleMoves(true);
+                    if(pressedTr + 4 * diceVal1 >= Triangle.TOTAL && player.getCanRemovePieces()) {
+                        hrPieces.setDrawRedPossible(true);
+                    }
+                }
+                if(player.getAvailableDice()[0] && player.getAvailableDice()[1] && (player.getAvailableDice()[2] || player.getAvailableDice()[3])) {
+                    if((pressedTr + 3 * diceVal1) < Triangle.TOTAL && (pressedTr + 3 * diceVal1) >= 0)
+                        if (triangles.get(pressedTr + 3 * diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr + 3 * diceVal1).getPieceColor() == -1  || triangles.get(pressedTr + 3 * diceVal1).getnPieces() == 1)
+                            triangles.get(pressedTr + 3 * diceVal1).setDrawPossibleMoves(true);
+                    if(pressedTr + 3 * diceVal1 >= Triangle.TOTAL && player.getCanRemovePieces()) {
+                        hrPieces.setDrawRedPossible(true);
+                    }
+                }
             }
         }
         if(player.getColor() == 1) {
-            if (player.getAvailableDice()[0])
-                if ((pressedTr - diceVal1) < Triangle.TOTAL && (pressedTr - diceVal1) > 0)
-                    if (triangles.get(pressedTr - diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - diceVal1).getPieceColor() == -1)
+            if (player.getAvailableDice()[0]) {
+                if ((pressedTr - diceVal1) < Triangle.TOTAL && (pressedTr - diceVal1) >= 0)
+                    if (triangles.get(pressedTr - diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - diceVal1).getPieceColor() == -1 || triangles.get(pressedTr - diceVal1).getnPieces() == 1)
                         triangles.get(pressedTr - diceVal1).setDrawPossibleMoves(true);
-            if(player.getAvailableDice()[1])
-                if ((pressedTr - diceVal2) < Triangle.TOTAL && (pressedTr - diceVal2) > 0)
-                    if (triangles.get(pressedTr - diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - diceVal2).getPieceColor() == -1)
+                if(pressedTr - diceVal1 < 0 && player.getCanRemovePieces()) {
+                    hrPieces.setDrawBrownPossible(true);
+                }
+            }
+            if(player.getAvailableDice()[1]) {
+                if ((pressedTr - diceVal2) < Triangle.TOTAL && (pressedTr - diceVal2) >= 0)
+                    if (triangles.get(pressedTr - diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - diceVal2).getPieceColor() == -1 || triangles.get(pressedTr - diceVal2).getnPieces() == 1)
                         triangles.get(pressedTr - diceVal2).setDrawPossibleMoves(true);
-            if(player.getAvailableDice()[0] && player.getAvailableDice()[1])
-                if ((pressedTr - diceVal1 - diceVal2) < Triangle.TOTAL && (pressedTr - diceVal1 - diceVal2) > 0)
-                    if (triangles.get(pressedTr - diceVal1 - diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - diceVal1 - diceVal2).getPieceColor() == -1)
+                if(pressedTr - diceVal2 < 0 && player.getCanRemovePieces()) {
+                    hrPieces.setDrawBrownPossible(true);
+                }
+            }
+            if(player.getAvailableDice()[0] && player.getAvailableDice()[1]) {
+                if ((pressedTr - diceVal1 - diceVal2) < Triangle.TOTAL && (pressedTr - diceVal1 - diceVal2) >= 0)
+                    if (triangles.get(pressedTr - diceVal1 - diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - diceVal1 - diceVal2).getPieceColor() == -1 || triangles.get(pressedTr - diceVal1 - diceVal2).getnPieces() == 1)
                         triangles.get(pressedTr - diceVal1 - diceVal2).setDrawPossibleMoves(true);
+                if(pressedTr - diceVal1 - diceVal2 < 0 && player.getCanRemovePieces()) {
+                    hrPieces.setDrawBrownPossible(true);
+                }
+            }
             if (player.getRolledDouble()){
-                if(player.getAvailableDice()[0] && player.getAvailableDice()[1] && player.getAvailableDice()[2] && player.getAvailableDice()[3])
-                    if((pressedTr - 2 * diceVal1 - 2 * diceVal2) < Triangle.TOTAL && (pressedTr - 2 * diceVal1 - 2 * diceVal2) > 0)
-                        if (triangles.get(pressedTr - 2 * diceVal1 - 2 * diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - 2 * diceVal1 - 2 * diceVal2).getPieceColor() == -1)
-                            triangles.get(pressedTr - 2 * diceVal1 - 2 * diceVal2).setDrawPossibleMoves(true);
-                if(player.getAvailableDice()[0] && player.getAvailableDice()[1] && (player.getAvailableDice()[2] || player.getAvailableDice()[3]))
-                    if((pressedTr - 2 * diceVal1 - diceVal2) < Triangle.TOTAL && (pressedTr - 2 * diceVal1 - diceVal2) > 0)
-                        if (triangles.get(pressedTr - 2 * diceVal1 - diceVal2).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - 2 * diceVal1 - diceVal2).getPieceColor() == -1)
-                            triangles.get(pressedTr - 2 * diceVal1 - diceVal2).setDrawPossibleMoves(true);
+                if(player.getAvailableDice()[0] && player.getAvailableDice()[1] && player.getAvailableDice()[2] && player.getAvailableDice()[3]) {
+                    if((pressedTr - 4 * diceVal1) < Triangle.TOTAL && (pressedTr - 4 * diceVal1) >= 0)
+                        if (triangles.get(pressedTr - 4 * diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - 4 * diceVal1).getPieceColor() == -1 || triangles.get(pressedTr - 4 * diceVal1).getnPieces() == 1)
+                            triangles.get(pressedTr - 4 * diceVal1).setDrawPossibleMoves(true);
+                    if(pressedTr - 4 * diceVal1 < 0 && player.getCanRemovePieces()) {
+                        hrPieces.setDrawBrownPossible(true);
+                    }
+                }
+                if(player.getAvailableDice()[0] && player.getAvailableDice()[1] && (player.getAvailableDice()[2] || player.getAvailableDice()[3])) {
+                    if((pressedTr - 3 * diceVal1) < Triangle.TOTAL && (pressedTr - 3 * diceVal1) >= 0)
+                        if (triangles.get(pressedTr - 3 * diceVal1).getPieceColor() == triangles.get(pressedTr).getPieceColor() || triangles.get(pressedTr - 3 * diceVal1).getPieceColor() == -1 || triangles.get(pressedTr - 3 * diceVal1).getnPieces() == 1)
+                            triangles.get(pressedTr - 3 * diceVal1).setDrawPossibleMoves(true);
+                    if(pressedTr - 3 * diceVal1 < 0 && player.getCanRemovePieces()) {
+                        hrPieces.setDrawBrownPossible(true);
+                    }
+                }
             }
         }
     }
@@ -333,6 +377,26 @@ public class MainActivity extends AppCompatActivity {
         return 0;
     }
 
+    public boolean isBeingRemoved(int x, int y, int color) {
+        final float dist2R = (float) 0.026; //distance between 2 removed pieces <=> height of a drawed removed piece
+        final float xStart = (float) 0.956;
+        final float xEnd = (float) 0.99;
+        final float yRedStart = (float) 0.06;
+        final float yRedEnd = (float) 0.45;
+        final float yBrownStart = (float) 0.55;
+        final float yBrownEnd = (float) 0.94;
+
+        if(color == 0) {//red
+            if(xStart <= x && x <= xEnd && yRedStart <= y && y <= yRedEnd)
+                return true;
+        }
+        else if(color == 1) {//brown
+            if(xStart <= x && x <= xEnd && yBrownStart <= y && y <= yBrownEnd)
+                return true;
+        }
+        return false;
+    }
+
     // https://stackoverflow.com/questions/3476779/how-to-get-the-touch-position-in-android
     public boolean onTouchEvent(MotionEvent event) {
         int x = (int) event.getX();
@@ -343,6 +407,8 @@ public class MainActivity extends AppCompatActivity {
                 case MotionEvent.ACTION_DOWN:
                     //computes and draws possible moves
                     //Log.i("t = ", "" + chooseTriangle(x, y) + ", " + pressedTriangleNr);
+                    player.setCanRemovePieces(canRemovePieces());
+                    //Log.i("canRemove", "" + canRemovePieces());
                     if (chooseTriangle(x, y) > 0 && (!playerToMove ? 0 : 1) == triangles.get(chooseTriangle(x, y) - 1).getPieceColor()) {
                         if (player.getRolledDice()) {
                             calculatePossibleMoves(chooseTriangle(x, y) - 1);
@@ -350,7 +416,7 @@ public class MainActivity extends AppCompatActivity {
                                 triangles.get(pressedTriangleNr - 1).setDrawMovingPiece(true);
                                 triangles.get(pressedTriangleNr - 1).setnPieces(triangles.get(pressedTriangleNr - 1).getnPieces() - 1);
                             } catch (Exception e) {
-                                Log.i("t = ", "" + chooseTriangle(x, y) + " has no pieces");
+                                Log.i("t = ", "" + pressedTriangleNr + " has no pieces");
                             }
                         }
                     } else {
@@ -364,7 +430,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         triangles.get(pressedTriangleNr - 1).setMoving(x, y);
                     } catch (Exception e) {
-                        Log.i("t = ", "" + chooseTriangle(x, y) + "had no pieces");
+                        Log.i("t = ", "" + pressedTriangleNr + "had no pieces");
                     }
                     screenView.invalidate();
                     break;
@@ -377,7 +443,16 @@ public class MainActivity extends AppCompatActivity {
                         for (int i = 0; i < Triangle.TOTAL; i++) {
                             if (triangles.get(i).isValidMove(x, y, triangles.get(pressedTriangleNr - 1).getPieceColor())) {
                                 droppedTriangleNr = i + 1;
-                                triangles.get(i).setnPieces(triangles.get(i).getnPieces() + 1);
+                                if((triangles.get(i).getPieceColor() == 1 || triangles.get(i).getPieceColor() == 0) && triangles.get(i).getPieceColor() != player.getColor() && triangles.get(i).getnPieces() == 1) {
+                                    //if there is only one piece belonging to the other player, it can be hit
+                                    //add the hit piece to the opponent
+                                    //current player = brown => add hit piece to red
+                                    //current player = red => add hit piece to brown
+                                    hrPieces.addHitPieceToPlayer(players.get(playerToMove ? 0 : 1).getColor());
+                                    players.get(playerToMove ? 0 : 1).setCanRemovePieces(false); //opponent can no longer remove pieces
+                                } else {
+                                    triangles.get(i).setnPieces(triangles.get(i).getnPieces() + 1);
+                                }
                                 triangles.get(i).setPieceColor(player.getColor());
                                 isValidMove = true;
                                 break;
@@ -389,8 +464,14 @@ public class MainActivity extends AppCompatActivity {
                         if(triangles.get(pressedTriangleNr - 1).getnPieces() == 0)
                             triangles.get(pressedTriangleNr - 1).setPieceColor(-1);
 
-                        //draws dragged piece back to its initial triangle
-                        if (!isValidMove && (player.getColor() == triangles.get(pressedTriangleNr - 1).getPieceColor() || triangles.get(pressedTriangleNr - 1).getPieceColor() == -1)) {
+                        //removes piece
+                        if(isBeingRemoved(x, y, player.getColor()) && player.getCanRemovePieces()) {
+                            hrPieces.incRemovedPiece(player.getColor());
+                            player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+                            if(player.getPiecesOnBoard() == 0){}
+                                //TODO: END GAME!!!
+                        } //draws dragged piece back to its initial triangle
+                        else if (!isValidMove && (player.getColor() == triangles.get(pressedTriangleNr - 1).getPieceColor() || triangles.get(pressedTriangleNr - 1).getPieceColor() == -1) && (!checkTurnEnd() || player.getAvailableMoves() != 0)) {
                             triangles.get(pressedTriangleNr - 1).setnPieces(triangles.get(pressedTriangleNr - 1).getnPieces() + 1);
                             triangles.get(pressedTriangleNr - 1).setPieceColor(player.getColor());
                         }
@@ -432,7 +513,7 @@ public class MainActivity extends AppCompatActivity {
                                 else if(Math.abs(droppedTriangleNr - pressedTriangleNr) == 4 * diceVal1) {
                                     player.setAvailableMoves(player.getAvailableMoves() - 4 * diceVal1);
                                     player.setAvailableDice(false,1);
-                                    secondDice.setImageResource(0);
+                                    firstDice.setImageResource(0);
                                     player.setAvailableDice(false,2);
                                     secondDice.setImageResource(0);
                                     player.setAvailableDice(false,3);
@@ -468,6 +549,9 @@ public class MainActivity extends AppCompatActivity {
 
                         if(player.getAvailableMoves() == 0 || checkTurnEnd()) {
                             turnEndTV.setText(R.string.turn_end);
+                            player.setAvailableMoves(0);
+                            player.setRolledDouble(false);
+                            player.setRolledDice(false);
                         }
 
                         droppedTriangleNr = 0;
@@ -477,6 +561,8 @@ public class MainActivity extends AppCompatActivity {
                     for (int i = 0; i < Triangle.TOTAL; i++) {
                         triangles.get(i).setDrawPossibleMoves(false);
                     }
+                    hrPieces.setDrawRedPossible(false);
+                    hrPieces.setDrawBrownPossible(false);
                     screenView.invalidate();
                     break;
             }

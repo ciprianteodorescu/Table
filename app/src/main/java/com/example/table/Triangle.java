@@ -40,6 +40,7 @@ public class Triangle extends Drawable {
     private Paint color = new Paint();
     private int nPieces; //no. of pieces on triangle
     private int trNo; //number of triangle, range [1 to 24]
+    private int hitPieces;
 
     private boolean drawPossibleMoves; //decide if to draw or not possible moves
 
@@ -49,6 +50,50 @@ public class Triangle extends Drawable {
 
     public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
         //Log.i("h,w = ", screenHeight + ", " + screenWidth);
+        this.hitPieces = 0;
+        this.screenWidth = (int) (screenWidth - cutoutOffset);
+        this.screenHeight = screenHeight;
+        RADIUS = (int) ((screenWidth + screenHeight) * dist2Tr / 4.5); //in order to fit 5 pieces per triangle
+        this.trNo = trNo;
+        switch (trNo){
+            case 21:
+                this.pieceColor = 0;
+                this.nPieces = 2;
+                break;
+            case 22: case 19:
+                this.pieceColor = 0;
+                this.nPieces = 5;
+                break;
+            case 23:
+                this.pieceColor = 0;
+                this.nPieces = 3;
+                break;
+            case 6: case 1:
+                this.pieceColor = 1;
+                this.nPieces = 5;
+                break;
+            case 5:
+                this.pieceColor = 1;
+                this.nPieces = 3;
+                break;
+            case 4:
+                this.pieceColor = 1;
+                this.nPieces = 2;
+                break;
+            default:
+                this.pieceColor = -1;
+                this.nPieces = 0;
+                break;
+        }
+        if(this.pieceColor == 0) //red
+            this.color.setColor(Color.rgb(190, 45, 50));
+        else if(this.pieceColor == 1) //brown
+            this.color.setColor(Color.rgb(145, 145, 145));
+    }
+
+    /*public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
+        //Log.i("h,w = ", screenHeight + ", " + screenWidth);
+        this.hitPieces = 0;
         this.screenWidth = (int) (screenWidth - cutoutOffset);
         this.screenHeight = screenHeight;
         RADIUS = (int) ((screenWidth + screenHeight) * dist2Tr / 4.5); //in order to fit 5 pieces per triangle
@@ -87,7 +132,7 @@ public class Triangle extends Drawable {
             this.color.setColor(Color.rgb(190, 45, 50));
         else if(this.pieceColor == 1) //brown
             this.color.setColor(Color.rgb(145, 145, 145));
-    }
+    }*/
 
 
 
@@ -254,6 +299,11 @@ public class Triangle extends Drawable {
         if(drawMovingPiece) {
             canvas.drawCircle(movingX, movingY, RADIUS, color);
         }
+
+        if(hitPieces > 0 && pieceColor == 0 && trNo == 1) {
+            canvas.drawCircle((int)(screenWidth * 0.5), (int)(screenHeight * (0.5 - RADIUS)), RADIUS, color);
+            canvas.drawRoundRect((float)(screenWidth * 0.475), (float)(screenHeight * 0.45), (float)(screenWidth * 0.525), (float)(screenHeight * 0.5), RADIUS, RADIUS, color);
+        }
     }
 
     public boolean chooseTriangle(int x, int y) {
@@ -296,28 +346,28 @@ public class Triangle extends Drawable {
                 if(screenWidth * (xQ1Start + (6 - trNo) * dist2Tr - dist2Tr / 2) <= x && x <= screenWidth * (xQ1Start + (6 - trNo) * dist2Tr + dist2Tr / 2))
                     if(screenHeight * yQ1Start >= y && screenHeight * 0.5 <= y) { //0.5 = half of the screen height
                         //Log.i("Pressed inside Triangle ", String.valueOf(drawPossibleMoves));
-                        return ((color == this.pieceColor || this.pieceColor == -1) && drawPossibleMoves);
+                        return ((color == this.pieceColor || this.pieceColor == -1 || this.getnPieces() == 1) && drawPossibleMoves);
                     }
                 return false;
             case 7: case 8: case 9: case 10: case 11: case 12: //2nd quarter
                 if(screenWidth * (xQ2Start + (12 - trNo) * dist2Tr - dist2Tr / 2) <= x && x <= screenWidth * (xQ2Start + (12 - trNo) * dist2Tr + dist2Tr / 2))
                     if(screenHeight * yQ2Start >= y && screenHeight * 0.5 <= y) { //0.5 = half of the screen height
                         //Log.i("Pressed inside Triangle ", String.valueOf(trNo));
-                        return ((color == this.pieceColor || this.pieceColor == -1) && drawPossibleMoves);
+                        return ((color == this.pieceColor || this.pieceColor == -1 || this.getnPieces() == 1) && drawPossibleMoves);
                     }
                 return false;
             case 13: case 14: case 15: case 16: case 17: case 18: //3rd quarter
                 if(screenWidth * (xQ3Start - (13 - trNo) * dist2Tr - dist2Tr / 2) <= x && x <= screenWidth * (xQ3Start - (13 - trNo) * dist2Tr + dist2Tr / 2))
                     if(screenHeight * yQ3Start <= y && screenHeight * 0.5 >= y) { //0.5 = half of the screen height
                         //Log.i("Pressed inside Triangle ", String.valueOf(trNo));
-                        return ((color == this.pieceColor || this.pieceColor == -1) && drawPossibleMoves);
+                        return ((color == this.pieceColor || this.pieceColor == -1 || this.getnPieces() == 1) && drawPossibleMoves);
                     }
                 return false;
             case 19: case 20: case 21: case 22: case 23: case 24: //4th quarter
                 if(screenWidth * (xQ4Start - (19 - trNo) * dist2Tr - dist2Tr / 2) <= x && x <= screenWidth * (xQ4Start - (19 - trNo) * dist2Tr + dist2Tr / 2))
                     if(screenHeight * yQ4Start <= y && screenHeight * 0.5 >= y) { //0.5 = half of the screen height
                         //Log.i("Pressed inside Triangle ", String.valueOf(trNo));
-                        return ((color == this.pieceColor || this.pieceColor == -1) && drawPossibleMoves);
+                        return ((color == this.pieceColor || this.pieceColor == -1 || this.getnPieces() == 1) && drawPossibleMoves);
                     }
                 return false;
         }
@@ -358,6 +408,14 @@ public class Triangle extends Drawable {
 
     public void setnPieces(int nPieces) {
         this.nPieces = nPieces;
+    }
+
+    public int getHitPieces() {
+        return hitPieces;
+    }
+
+    public void setHitPieces(int hitPieces) {
+        this.hitPieces = hitPieces;
     }
 
     public int getTrNo() {
