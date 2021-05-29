@@ -16,19 +16,19 @@ public class Triangle extends Drawable {
     public static final int TOTAL = 24; //24 triangles on board
     public static int RADIUS;
 
-    private final double dist2Tr = 0.07; //distance between 2 triangles
-    private final double xQ1Start = 0.56; //xQ1Start*screenWidth=x axis pos for 6th triangle
-    private final double xQ1End = 0.91;
-    private final double xQ2Start = 0.085;
-    private final double xQ2End = 0.44;
-    private final double xQ3Start = 0.085;
-    private final double xQ3End = 0.44;
-    private final double xQ4Start = 0.56;
-    private final double xQ4End = 0.91;
-    private final double yQ1Start = 0.99; //yQ1Start*screenHeight=y axis pos for 6th triangle
-    private final double yQ2Start = 0.99;
-    private final double yQ3Start = 0.01;
-    private final double yQ4Start = 0.01;
+    public static final double dist2Tr = 0.07; //distance between 2 triangles
+    public static final double xQ1Start = 0.56; //xQ1Start*screenWidth=x axis pos for 6th triangle
+    public static final double xQ1End = 0.91;
+    public static final double xQ2Start = 0.085;
+    public static final double xQ2End = 0.44;
+    public static final double xQ3Start = 0.085;
+    public static final double xQ3End = 0.44;
+    public static final double xQ4Start = 0.56;
+    public static final double xQ4End = 0.91;
+    public static final double yQ1Start = 0.99; //yQ1Start*screenHeight=y axis pos for 6th triangle
+    public  static final double yQ2Start = 0.99;
+    public static final double yQ3Start = 0.01;
+    public static final double yQ4Start = 0.01;
 
     private int screenWidth, screenHeight;
 
@@ -138,23 +138,10 @@ public class Triangle extends Drawable {
 
     @Override
     public void draw(@NonNull Canvas canvas) {
-        colors[0] = Color.argb(255, 255, 255, 255);//white
-        colors[1] = Color.argb(255, 255, 255, 255);
-        colors[2] = Color.argb(255, 255, 255, 255);
-        colors[3] = Color.argb(255, 0, 0, 0);//black
-        colors[4] = Color.argb(255, 0, 0, 0);
-        colors[5] = Color.argb(255, 0, 0, 0);
+
 
         switch (trNo){
             case 1: case 2: case 3: case 4: case 5: case 6: //1st quarter
-                verts[0] = (float) (screenWidth * (xQ1Start + (6 - trNo) * dist2Tr - dist2Tr / 2));
-                verts[1] = (float) (screenHeight * yQ1Start);
-                verts[2] = (float) (screenWidth * (xQ1Start + (6 - trNo) * dist2Tr + dist2Tr / 2));
-                verts[3] = (float) (screenHeight * yQ1Start);
-                verts[4] = (float) (screenWidth * (xQ1Start + (6 - trNo) * dist2Tr));
-                verts[5] = (float) (screenHeight * 0.55);
-
-                canvas.drawVertices(Canvas.VertexMode.TRIANGLES, verts.length, verts, 0, null, 0, colors, 3*((trNo+1)%2), null, 0, 0, new Paint());
                 for(int i = 1; i <= Math.min(nPieces, 5); i++){
                     canvas.drawCircle((int)(screenWidth*(xQ1Start+(6-trNo)*dist2Tr)), (int)(screenHeight*yQ1Start-(i-1)*2*RADIUS-RADIUS), RADIUS, color);
                 }
@@ -167,14 +154,6 @@ public class Triangle extends Drawable {
                 }
                 break;
             case 7: case 8: case 9: case 10: case 11: case 12: //2nd quarter
-                verts[0] = (float) (screenWidth * (xQ2Start + (12 - trNo) * dist2Tr - dist2Tr / 2));
-                verts[1] = (float) (screenHeight * yQ2Start);
-                verts[2] = (float) (screenWidth * (xQ2Start + (12 - trNo) * dist2Tr + dist2Tr / 2));
-                verts[3] = (float) (screenHeight * yQ2Start);
-                verts[4] = (float) (screenWidth * (xQ2Start + (12 - trNo) * dist2Tr));
-                verts[5] = (float) (screenHeight * 0.55);
-
-                canvas.drawVertices(Canvas.VertexMode.TRIANGLES, verts.length, verts, 0, null, 0, colors, 3*((trNo+1)%2), null, 0, 0, new Paint());
                 for(int i = 1; i <= Math.min(nPieces, 5); i++){
                     canvas.drawCircle((int)(screenWidth*(xQ2Start+(12-trNo)*dist2Tr)), (int)(screenHeight*yQ2Start-(i-1)*2*RADIUS-RADIUS), RADIUS, color);
                 }
@@ -187,14 +166,6 @@ public class Triangle extends Drawable {
                 }
                 break;
             case 13: case 14: case 15: case 16: case 17: case 18: //3rd quarter
-                verts[0] = (float) (screenWidth * (xQ3Start - (13 - trNo) * dist2Tr - dist2Tr / 2));
-                verts[1] = (float) (screenHeight * yQ3Start);
-                verts[2] = (float) (screenWidth * (xQ3Start - (13 - trNo) * dist2Tr + dist2Tr / 2));
-                verts[3] = (float) (screenHeight * yQ3Start);
-                verts[4] = (float) (screenWidth * (xQ3Start - (13 - trNo) * dist2Tr));
-                verts[5] = (float) (screenHeight * 0.45);
-
-                canvas.drawVertices(Canvas.VertexMode.TRIANGLES, verts.length, verts, 0, null, 0, colors, 3*((trNo+1)%2), null, 0, 0, new Paint());
                 for(int i = 1; i <= Math.min(nPieces, 5); i++){
                     canvas.drawCircle((int)(screenWidth*(xQ3Start-(13-trNo)*dist2Tr)), (int)(screenHeight*yQ3Start+(i-1)*2*RADIUS+RADIUS), RADIUS, color);
                 }
@@ -207,14 +178,6 @@ public class Triangle extends Drawable {
                 }
                 break;
             case 19: case 20: case 21: case 22: case 23: case 24: //4th quarter
-                verts[0] = (float) (screenWidth * (xQ4Start - (19 - trNo) * dist2Tr - dist2Tr / 2));
-                verts[1] = (float) (screenHeight * yQ4Start);
-                verts[2] = (float) (screenWidth * (xQ4Start - (19 - trNo) * dist2Tr + dist2Tr / 2));
-                verts[3] = (float) (screenHeight * yQ4Start);
-                verts[4] = (float) (screenWidth * (xQ4Start - (19 - trNo) * dist2Tr));
-                verts[5] = (float) (screenHeight * 0.45);
-
-                canvas.drawVertices(Canvas.VertexMode.TRIANGLES, verts.length, verts, 0, null, 0, colors, 3*((trNo+1)%2), null, 0, 0, new Paint());
                 for(int i = 1; i <= Math.min(nPieces, 5); i++){
                     canvas.drawCircle((int)(screenWidth*(xQ4Start-(19-trNo)*dist2Tr)), (int)(screenHeight*yQ4Start+(i-1)*2*RADIUS+RADIUS), RADIUS, color);
                 }
