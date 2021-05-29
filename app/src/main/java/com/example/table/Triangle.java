@@ -34,7 +34,7 @@ public class Triangle extends Drawable {
 
     private float[] verts = new float[6]; //coordinates of triangle vertices
 
-    private int[] colors = new int[6];
+    private int[] colors = new int[3];
 
     private int pieceColor; //color of pieces on triangle 0=brown, 1=red, -1=empty
     private Paint color = new Paint();
@@ -58,7 +58,7 @@ public class Triangle extends Drawable {
         switch (trNo){
             case 21:
                 this.pieceColor = 0;
-                this.nPieces = 2;
+                this.nPieces = 5;
                 break;
             case 22: case 19:
                 this.pieceColor = 0;
@@ -142,6 +142,9 @@ public class Triangle extends Drawable {
 
         switch (trNo){
             case 1: case 2: case 3: case 4: case 5: case 6: //1st quarter
+                verts[0] = (float) (screenWidth * (Triangle.xQ1Start + (6 - trNo) * Triangle.dist2Tr - Triangle.dist2Tr / 2));
+                verts[1] = (float) (screenHeight * Triangle.yQ1Start);
+
                 for(int i = 1; i <= Math.min(nPieces, 5); i++){
                     canvas.drawCircle((int)(screenWidth*(xQ1Start+(6-trNo)*dist2Tr)), (int)(screenHeight*yQ1Start-(i-1)*2*RADIUS-RADIUS), RADIUS, color);
                 }
@@ -154,6 +157,9 @@ public class Triangle extends Drawable {
                 }
                 break;
             case 7: case 8: case 9: case 10: case 11: case 12: //2nd quarter
+                verts[0] = (float) (screenWidth * (Triangle.xQ2Start + (12 - trNo) * Triangle.dist2Tr - Triangle.dist2Tr / 2));
+                verts[1] = (float) (screenHeight * Triangle.yQ2Start);
+
                 for(int i = 1; i <= Math.min(nPieces, 5); i++){
                     canvas.drawCircle((int)(screenWidth*(xQ2Start+(12-trNo)*dist2Tr)), (int)(screenHeight*yQ2Start-(i-1)*2*RADIUS-RADIUS), RADIUS, color);
                 }
@@ -166,6 +172,9 @@ public class Triangle extends Drawable {
                 }
                 break;
             case 13: case 14: case 15: case 16: case 17: case 18: //3rd quarter
+                verts[0] = (float) (screenWidth * (Triangle.xQ3Start - (13 - trNo) * Triangle.dist2Tr - Triangle.dist2Tr / 2));
+                verts[1] = (float) (screenHeight * Triangle.yQ3Start);
+
                 for(int i = 1; i <= Math.min(nPieces, 5); i++){
                     canvas.drawCircle((int)(screenWidth*(xQ3Start-(13-trNo)*dist2Tr)), (int)(screenHeight*yQ3Start+(i-1)*2*RADIUS+RADIUS), RADIUS, color);
                 }
@@ -178,6 +187,9 @@ public class Triangle extends Drawable {
                 }
                 break;
             case 19: case 20: case 21: case 22: case 23: case 24: //4th quarter
+                verts[0] = (float) (screenWidth * (Triangle.xQ4Start - (19 - trNo) * Triangle.dist2Tr - Triangle.dist2Tr / 2));
+                verts[1] = (float) (screenHeight * Triangle.yQ4Start);
+
                 for(int i = 1; i <= Math.min(nPieces, 5); i++){
                     canvas.drawCircle((int)(screenWidth*(xQ4Start-(19-trNo)*dist2Tr)), (int)(screenHeight*yQ4Start+(i-1)*2*RADIUS+RADIUS), RADIUS, color);
                 }

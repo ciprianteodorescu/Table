@@ -135,8 +135,10 @@ public class Piece extends Drawable {
         switch (player) {
             case 0:
                 this.redRemoved += 1;
+                break;
             case 1:
                 this.brownRemoved += 1;
+                break;
         }
     }
 

@@ -378,13 +378,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean isBeingRemoved(int x, int y, int color) {
-        final float dist2R = (float) 0.026; //distance between 2 removed pieces <=> height of a drawed removed piece
-        final float xStart = (float) 0.956;
-        final float xEnd = (float) 0.99;
-        final float yRedStart = (float) 0.06;
-        final float yRedEnd = (float) 0.45;
-        final float yBrownStart = (float) 0.55;
-        final float yBrownEnd = (float) 0.94;
+        //final float dist2R = (float) 0.026; //distance between 2 removed pieces <=> height of a drawed removed piece
+        final float xStart = (float) (screenView.width * 0.956);
+        final float xEnd = (float) (screenView.width * 0.99);
+        final float yRedStart = (float) (screenView.height * 0.06);
+        final float yRedEnd = (float) (screenView.height * 0.45);
+        final float yBrownStart = (float) (screenView.height * 0.55);
+        final float yBrownEnd = (float) (screenView.height * 0.94);
+
+        Log.i("removed", x + " " + y + " " + color);
 
         if(color == 0) {//red
             if(xStart <= x && x <= xEnd && yRedStart <= y && y <= yRedEnd)
@@ -465,13 +467,291 @@ public class MainActivity extends AppCompatActivity {
                             triangles.get(pressedTriangleNr - 1).setPieceColor(-1);
 
                         //removes piece
-                        if(isBeingRemoved(x, y, player.getColor()) && player.getCanRemovePieces()) {
-                            hrPieces.incRemovedPiece(player.getColor());
-                            player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+                        boolean removedPiece = false;
+                        if(isBeingRemoved(x, y, player.getColor()) && player.getCanRemovePieces() && !isValidMove) {
+                            //isValidMove will be false in this case so we need to remove a die accordingly
+                            //find the smallest die >= (25 - pressedTriangleNr) for red
+                            //or >= (pressedTriangleNr) for brown
+
+                            if(player.getColor() == 0) { //red player
+                                if(player.getRolledDouble()) {
+                                    if (player.getAvailableDice()[3] && diceVal1 >= (25 - pressedTriangleNr))
+                                    {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal1);
+                                        player.setAvailableDice(false, 4);
+                                        fourthDice.setImageResource(0);
+                                    }
+                                    else if (player.getAvailableDice()[2] && diceVal1 >= (25 - pressedTriangleNr))
+                                    {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal1);
+                                        player.setAvailableDice(false, 3);
+                                        thirdDice.setImageResource(0);
+                                    }
+                                    else if (player.getAvailableDice()[3] && player.getAvailableDice()[2] && 2 * diceVal1 >= (25 - pressedTriangleNr))
+                                    {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - 2 * diceVal1);
+                                        player.setAvailableDice(false, 4);
+                                        player.setAvailableDice(false, 3);
+                                        fourthDice.setImageResource(0);
+                                        thirdDice.setImageResource(0);
+                                    }
+                                    else if (player.getAvailableDice()[3] && player.getAvailableDice()[2] && player.getAvailableDice()[1] && 3 * diceVal1 >= (25 - pressedTriangleNr))
+                                    {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - 3 * diceVal1);
+                                        player.setAvailableDice(false, 4);
+                                        player.setAvailableDice(false, 3);
+                                        player.setAvailableDice(false, 2);
+                                        fourthDice.setImageResource(0);
+                                        thirdDice.setImageResource(0);
+                                        secondDice.setImageResource(0);
+                                    }
+                                    else if (player.getAvailableDice()[3] && player.getAvailableDice()[2] && player.getAvailableDice()[1] && player.getAvailableDice()[0] && 4 * diceVal1 >= (25 - pressedTriangleNr))
+                                    {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - 4 * diceVal1);
+                                        player.setAvailableDice(false, 4);
+                                        player.setAvailableDice(false, 3);
+                                        player.setAvailableDice(false, 2);
+                                        player.setAvailableDice(false, 1);
+                                        fourthDice.setImageResource(0);
+                                        thirdDice.setImageResource(0);
+                                        secondDice.setImageResource(0);
+                                        firstDice.setImageResource(0);
+                                    }
+
+                                    if(!player.getAvailableDice()[2] && !player.getAvailableDice()[3] && player.getRolledDouble())
+                                        player.setRolledDouble(false);
+                                }
+                                else if(player.getAvailableDice()[0] && player.getAvailableDice()[1]) {
+                                    int minDie = 3; // 1 or 2
+                                    if(diceVal1 < diceVal2) {
+                                        if(diceVal1 >= (25 - pressedTriangleNr))
+                                            minDie = 1;
+                                        else
+                                            minDie = 2;
+                                    }
+                                    else if(diceVal2 < diceVal1) {
+                                        if(diceVal2 >= (25 - pressedTriangleNr))
+                                            minDie = 2;
+                                        else
+                                            minDie = 1;
+                                    }
+
+                                    if(minDie == 1) {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal1);
+                                        player.setAvailableDice(false, 1);
+                                        firstDice.setImageResource(0);
+                                    }
+                                    else if(minDie == 2) {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal2);
+                                        player.setAvailableDice(false, 2);
+                                        secondDice.setImageResource(0);
+                                    }
+                                    else if(diceVal2 + diceVal1 >= (25 - pressedTriangleNr)) {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal1 - diceVal2);
+                                        player.setAvailableDice(false, 1);
+                                        player.setAvailableDice(false, 2);
+                                        firstDice.setImageResource(0);
+                                        secondDice.setImageResource(0);
+                                    }
+                                }
+                                else if(player.getAvailableDice()[0] && !player.getAvailableDice()[1]) {
+                                    if (diceVal1 >= (25 - pressedTriangleNr)) {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal1);
+                                        player.setAvailableDice(false, 1);
+                                        firstDice.setImageResource(0);
+                                    }
+                                }
+                                else if(!player.getAvailableDice()[0] && player.getAvailableDice()[1]) {
+                                    if(diceVal2 >= (25 - pressedTriangleNr)) {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal2);
+                                        player.setAvailableDice(false, 2);
+                                        secondDice.setImageResource(0);
+                                    }
+                                }
+                            }
+
+                            else if(player.getColor() == 1) { //brown player
+                                if(player.getRolledDouble()) {
+                                    if (player.getAvailableDice()[3] && diceVal1 >= (pressedTriangleNr))
+                                    {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal1);
+                                        player.setAvailableDice(false, 4);
+                                        fourthDice.setImageResource(0);
+                                    }
+                                    else if (player.getAvailableDice()[2] && diceVal1 >= (pressedTriangleNr))
+                                    {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal1);
+                                        player.setAvailableDice(false, 3);
+                                        thirdDice.setImageResource(0);
+                                    }
+                                    else if (player.getAvailableDice()[3] && player.getAvailableDice()[2] && 2 * diceVal1 >= (pressedTriangleNr))
+                                    {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - 2 * diceVal1);
+                                        player.setAvailableDice(false, 4);
+                                        player.setAvailableDice(false, 3);
+                                        fourthDice.setImageResource(0);
+                                        thirdDice.setImageResource(0);
+                                    }
+                                    else if (player.getAvailableDice()[3] && player.getAvailableDice()[2] && player.getAvailableDice()[1] && 3 * diceVal1 >= (pressedTriangleNr))
+                                    {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - 3 * diceVal1);
+                                        player.setAvailableDice(false, 4);
+                                        player.setAvailableDice(false, 3);
+                                        player.setAvailableDice(false, 2);
+                                        fourthDice.setImageResource(0);
+                                        thirdDice.setImageResource(0);
+                                        secondDice.setImageResource(0);
+                                    }
+                                    else if (player.getAvailableDice()[3] && player.getAvailableDice()[2] && player.getAvailableDice()[1] && player.getAvailableDice()[0] && 4 * diceVal1 >= (pressedTriangleNr))
+                                    {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - 4 * diceVal1);
+                                        player.setAvailableDice(false, 4);
+                                        player.setAvailableDice(false, 3);
+                                        player.setAvailableDice(false, 2);
+                                        player.setAvailableDice(false, 1);
+                                        fourthDice.setImageResource(0);
+                                        thirdDice.setImageResource(0);
+                                        secondDice.setImageResource(0);
+                                        firstDice.setImageResource(0);
+                                    }
+
+                                    if(!player.getAvailableDice()[2] && !player.getAvailableDice()[3] && player.getRolledDouble())
+                                        player.setRolledDouble(false);
+                                }
+                                else if(player.getAvailableDice()[0] && player.getAvailableDice()[1]) {
+                                    int minDie = 3; // 1 or 2
+                                    if(diceVal1 < diceVal2) {
+                                        if(diceVal1 >= (pressedTriangleNr))
+                                            minDie = 1;
+                                        else
+                                            minDie = 2;
+                                    }
+                                    else if(diceVal2 < diceVal1) {
+                                        if(diceVal2 >= (pressedTriangleNr))
+                                            minDie = 2;
+                                        else
+                                            minDie = 1;
+                                    }
+
+                                    if(minDie == 1) {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal1);
+                                        player.setAvailableDice(false, 1);
+                                        firstDice.setImageResource(0);
+                                    }
+                                    else if(minDie == 2) {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal2);
+                                        player.setAvailableDice(false, 2);
+                                        secondDice.setImageResource(0);
+                                    }
+                                    else if(diceVal2 + diceVal1 >= (pressedTriangleNr)) {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal1 - diceVal2);
+                                        player.setAvailableDice(false, 1);
+                                        player.setAvailableDice(false, 2);
+                                        firstDice.setImageResource(0);
+                                        secondDice.setImageResource(0);
+                                    }
+                                }
+                                else if(player.getAvailableDice()[0] && !player.getAvailableDice()[1]) {
+                                    if (diceVal1 >= (pressedTriangleNr)) {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal1);
+                                        player.setAvailableDice(false, 1);
+                                        firstDice.setImageResource(0);
+                                    }
+                                }
+                                else if(!player.getAvailableDice()[0] && player.getAvailableDice()[1]) {
+                                    if(diceVal2 >= (pressedTriangleNr)) {
+                                        removedPiece = true;
+                                        hrPieces.incRemovedPiece(player.getColor());
+                                        player.setPiecesOnBoard(player.getPiecesOnBoard() - 1);
+
+                                        player.setAvailableMoves(player.getAvailableMoves() - diceVal2);
+                                        player.setAvailableDice(false, 2);
+                                        secondDice.setImageResource(0);
+                                    }
+                                }
+                            }
+
+
                             if(player.getPiecesOnBoard() == 0){}
                                 //TODO: END GAME!!!
                         } //draws dragged piece back to its initial triangle
-                        else if (!isValidMove && (player.getColor() == triangles.get(pressedTriangleNr - 1).getPieceColor() || triangles.get(pressedTriangleNr - 1).getPieceColor() == -1) && (!checkTurnEnd() || player.getAvailableMoves() != 0)) {
+                        if (!removedPiece || !isValidMove && (player.getColor() == triangles.get(pressedTriangleNr - 1).getPieceColor() || triangles.get(pressedTriangleNr - 1).getPieceColor() == -1) && (!checkTurnEnd() || player.getAvailableMoves() != 0)) {
                             triangles.get(pressedTriangleNr - 1).setnPieces(triangles.get(pressedTriangleNr - 1).getnPieces() + 1);
                             triangles.get(pressedTriangleNr - 1).setPieceColor(player.getColor());
                         }
