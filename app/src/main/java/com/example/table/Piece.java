@@ -24,6 +24,9 @@ public class Piece extends Drawable {
     private final Paint possible = new Paint();
     private int redHit;
     private int brownHit;
+    private boolean drawMovingRedHit;
+    private boolean drawMovingBrownHit;
+    private int x, y;
     private int redRemoved;
     private int brownRemoved;
     private int screenWidth;
@@ -59,24 +62,24 @@ public class Piece extends Drawable {
     @Override
     public void draw(@NonNull Canvas canvas) {
         if(redHit > 0) {
-            canvas.drawCircle((float) (screenWidth * 0.5), (float) (screenHeight * 0.5 - RADIUS), RADIUS, colorRed);
+            canvas.drawCircle((float) (screenWidth * 0.5), (float) (screenHeight * 0.5 + RADIUS), RADIUS, colorRed);
             if(redHit > 1) {
                 Paint textPaint = new Paint();
                 textPaint.setStyle(Paint.Style.FILL);
                 textPaint.setColor(colorBrown.getColor());
                 textPaint.setTextSize((float)(RADIUS));
-                canvas.drawText("+" + (redHit - 1), (float) (screenWidth * 0.487), (float) (screenHeight * 0.5 - RADIUS * 0.7), textPaint);
+                canvas.drawText("+" + (redHit - 1), (float) (screenWidth * 0.487), (float) (screenHeight * 0.5 + RADIUS * 1.3), textPaint);
             }
         }
         if(brownHit > 0) {
             //canvas.drawRoundRect((float)(screenWidth * 0.475), (float)(screenHeight * 0.5), (float)(screenWidth * 0.525), (float)(screenHeight * 0.55), RADIUS, RADIUS, colorBrown);
-            canvas.drawCircle((float) (screenWidth * 0.5), (float) (screenHeight * 0.5 + RADIUS), RADIUS, colorBrown);
+            canvas.drawCircle((float) (screenWidth * 0.5), (float) (screenHeight * 0.5 - RADIUS), RADIUS, colorBrown);
             if(brownHit > 1) {
                 Paint textPaint = new Paint();
                 textPaint.setStyle(Paint.Style.FILL);
                 textPaint.setColor(colorRed.getColor());
                 textPaint.setTextSize((float)(RADIUS));
-                canvas.drawText("+" + (brownHit - 1), (float) (screenWidth * 0.487), (float) (screenHeight * 0.5 + RADIUS * 1.3), textPaint);
+                canvas.drawText("+" + (brownHit - 1), (float) (screenWidth * 0.487), (float) (screenHeight * 0.5 - RADIUS * 0.7), textPaint);
             }
         }
 
@@ -101,6 +104,29 @@ public class Piece extends Drawable {
         if(drawBrownPossible) {
             canvas.drawRect((float) (screenWidth * xStart), (float) (screenHeight * yBrownStart), (float) (screenWidth * xEnd), (float) (screenHeight * yBrownEnd), possible);
         }
+
+        if(drawMovingRedHit) {
+            canvas.drawCircle(x, y, RADIUS, colorRed);
+        }
+        if(drawMovingBrownHit) {
+            canvas.drawCircle(x, y, RADIUS, colorBrown);
+        }
+    }
+
+    public int getRedHit() {
+        return redHit;
+    }
+
+    public void setRedHit(int redHit) {
+        this.redHit = redHit;
+    }
+
+    public int getBrownHit() {
+        return brownHit;
+    }
+
+    public void setBrownHit(int brownHit) {
+        this.brownHit = brownHit;
     }
 
     public void addHitPieceToPlayer(int player) {
@@ -173,6 +199,36 @@ public class Piece extends Drawable {
 
     public void setDrawBrownPossible(boolean drawBrownPossible) {
         this.drawBrownPossible = drawBrownPossible;
+    }
+
+    public boolean getDrawMovingRedHit() {
+        return drawMovingRedHit;
+    }
+
+    public void setDrawMovingRedHit(boolean drawMovingRedHit, int x, int y) {
+        this.drawMovingRedHit = drawMovingRedHit;
+        this.x = x;
+        this.y = y;
+    }
+    public void setDrawMovingRedHit(boolean drawMovingRedHit) {
+        this.drawMovingRedHit = drawMovingRedHit;
+        this.x = 0;
+        this.y = 0;
+    }
+
+    public boolean getDrawMovingBrownHit() {
+        return drawMovingBrownHit;
+    }
+
+    public void setDrawMovingBrownHit(boolean drawMovingBrownHit, int x, int y) {
+        this.drawMovingBrownHit = drawMovingBrownHit;
+        this.x = x;
+        this.y = y;
+    }
+    public void setDrawMovingBrownHit(boolean drawMovingBrownHit) {
+        this.drawMovingBrownHit = drawMovingBrownHit;
+        this.x = 0;
+        this.y = 0;
     }
 
     @Override

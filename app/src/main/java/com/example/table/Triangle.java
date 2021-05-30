@@ -48,7 +48,7 @@ public class Triangle extends Drawable {
     private int movingX, movingY;
 
 
-    public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
+    /*public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
         //Log.i("h,w = ", screenHeight + ", " + screenWidth);
         this.hitPieces = 0;
         this.screenWidth = (int) (screenWidth - cutoutOffset);
@@ -89,9 +89,9 @@ public class Triangle extends Drawable {
             this.color.setColor(Color.rgb(190, 45, 50));
         else if(this.pieceColor == 1) //brown
             this.color.setColor(Color.rgb(145, 145, 145));
-    }
+    }*/
 
-    /*public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
+    public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
         //Log.i("h,w = ", screenHeight + ", " + screenWidth);
         this.hitPieces = 0;
         this.screenWidth = (int) (screenWidth - cutoutOffset);
@@ -132,7 +132,7 @@ public class Triangle extends Drawable {
             this.color.setColor(Color.rgb(190, 45, 50));
         else if(this.pieceColor == 1) //brown
             this.color.setColor(Color.rgb(145, 145, 145));
-    }*/
+    }
 
 
 
