@@ -3,6 +3,8 @@ package com.example.table;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -22,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     CustomView screenView;
     Button  rollButton;
     boolean changeToRoll = true;
+    boolean gameEnded = false;
     ImageView firstDice;
     ImageView secondDice;
     ImageView thirdDice;
@@ -115,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                     rollButton.setText(R.string.roll);
                     changeToRoll = false;
                 }
-                else{
+                else if(!gameEnded){
                     //roll the dice
                     turnEndTV.setText(null);
                     playerToMove = !playerToMove;
@@ -624,9 +627,30 @@ public class MainActivity extends AppCompatActivity {
                                 secondDice.setImageResource(0);
                             }
 
-
-                            if(player.getPiecesOnBoard() == 0){}
-                                //TODO: END GAME!!!
+                            //end game
+                            if(player.getPiecesOnBoard() == 0){
+                                new AlertDialog.Builder(this) //https://stackoverflow.com/questions/2115758/how-do-i-display-an-alert-dialog-on-android
+                                        .setTitle(R.string.congratulations)
+                                        .setMessage(player.getColor() == 0 ? R.string.red_won : R.string.brown_won)
+                                .setPositiveButton(R.string.restart, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //restart activity
+                                        //https://stackoverflow.com/questions/3053761/reload-activity-in-android
+                                        finish();
+                                        startActivity(getIntent());
+                                    }
+                                })
+                                .setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //exit
+                                        finishAndRemoveTask();
+                                    }
+                                })
+                                .show();
+                                gameEnded = true;
+                            }
                         }
 
                         //draws dragged piece back to its initial triangle

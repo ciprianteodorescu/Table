@@ -48,7 +48,7 @@ public class Triangle extends Drawable {
     private int movingX, movingY;
 
 
-    /*public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
+    public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
         //Log.i("h,w = ", screenHeight + ", " + screenWidth);
         this.hitPieces = 0;
         this.screenWidth = (int) (screenWidth - cutoutOffset);
@@ -58,25 +58,9 @@ public class Triangle extends Drawable {
         switch (trNo){
             case 21:
                 this.pieceColor = 0;
-                this.nPieces = 5;
+                this.nPieces = 2;
                 break;
-            case 22: case 19:
-                this.pieceColor = 0;
-                this.nPieces = 5;
-                break;
-            case 23:
-                this.pieceColor = 0;
-                this.nPieces = 3;
-                break;
-            case 6: case 1:
-                this.pieceColor = 1;
-                this.nPieces = 5;
-                break;
-            case 5:
-                this.pieceColor = 1;
-                this.nPieces = 3;
-                break;
-            case 4:
+            case 3:
                 this.pieceColor = 1;
                 this.nPieces = 2;
                 break;
@@ -89,9 +73,9 @@ public class Triangle extends Drawable {
             this.color.setColor(Color.rgb(190, 45, 50));
         else if(this.pieceColor == 1) //brown
             this.color.setColor(Color.rgb(145, 145, 145));
-    }*/
+    }
 
-    public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
+    /*public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
         //Log.i("h,w = ", screenHeight + ", " + screenWidth);
         this.hitPieces = 0;
         this.screenWidth = (int) (screenWidth - cutoutOffset);
@@ -132,7 +116,7 @@ public class Triangle extends Drawable {
             this.color.setColor(Color.rgb(190, 45, 50));
         else if(this.pieceColor == 1) //brown
             this.color.setColor(Color.rgb(145, 145, 145));
-    }
+    }*/
 
 
 

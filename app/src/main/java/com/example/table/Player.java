@@ -14,7 +14,7 @@ public class Player {
 
     public Player(int color) {
         this.color = color;
-        this.piecesOnBoard = 15;
+        this.piecesOnBoard = 2;
         this.hitPieces = 0;
         this.availableMoves = 0;
         this.availableDice[0] = false;
