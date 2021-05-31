@@ -4,7 +4,10 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -15,16 +18,23 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity {
 
     CustomView screenView;
     Button  rollButton;
     boolean changeToRoll = true;
     boolean gameEnded = false;
+    Button menuButton;
     ImageView firstDice;
     ImageView secondDice;
     ImageView thirdDice;
@@ -32,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     TextView playerToMoveTV;
     TextView turnEndTV;
 
-    //List<Piece> pieces = new ArrayList<Piece>();
     List<Triangle> triangles = new ArrayList<Triangle>();
     Piece hrPieces; //hit or removed pieces
 
@@ -51,10 +60,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_game);
 
-        //hide status bar: https://developer.android.com/training/system-ui/status#41
-        //https://stackoverflow.com/questions/46027325/auto-hide-status-barandroid
+        //hide status bar
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -64,15 +72,11 @@ public class MainActivity extends AppCompatActivity {
                 | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY // hide status bar and nav bar after a short delay, or if the user interacts with the middle of the screen
         );
-        //ActionBar actionBar = getSupportActionBar();
-        //actionBar.hide();
 
         screenView = new CustomView(this);
         screenView = findViewById(R.id.screenView);
         //get screen height and width
         getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
-        //Log.i("cutout", ""+getWindowManager().getDefaultDisplay().getCutout().getBoundingRectLeft().width());
-        //https://developer.android.com/reference/android/view/DisplayCutout
         try {
             screenView.cutoutOffset = getWindowManager().getDefaultDisplay().getCutout().getBoundingRectLeft().width() + getWindowManager().getDefaultDisplay().getCutout().getBoundingRectRight().width();
         } catch (Exception e) {
@@ -90,14 +94,41 @@ public class MainActivity extends AppCompatActivity {
         fourthDice = new ImageView(this);
         fourthDice = findViewById(R.id.fourthDice);
         rollButton = new Button(this);
-        rollButton = findViewById(R.id.roll_button);
+        rollButton = findViewById(R.id.rollBt);
+        menuButton = new Button(this);
+        menuButton = findViewById(R.id.menuBt);
         playerToMoveTV = new TextView(this);
         playerToMoveTV = findViewById(R.id.playerToMove);
         turnEndTV = new TextView(this);
         turnEndTV = findViewById(R.id.turnEnd);
 
 
-        // TODO: save and restore game on close/open
+        // restores game on open
+
+        SharedPreferences sharedPreferences = getSharedPreferences("PREF", MODE_PRIVATE);;
+        //SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("model", "");
+        Model model = gson.fromJson(json, Model.class);
+        if(model != null) {
+            Log.i("jsonC", ""+model.triangles.get(20).getnPieces());
+            setValuesFromModel(model);
+            for(int i = 0; i < triangles.size(); i++) {
+                triangles.get(i).setColors();
+            }
+            hrPieces.setColors();
+        }
+        else
+            Log.i("create", "empty model");
+        if(player!=null)
+            Log.i("playerC", ""+player.getColor());
+        screenView.invalidate();
+        try {
+            Log.i("Created", "" + screenView.getGameStarted());
+        } catch (Exception e) {
+
+        }
 
 
         rollButton.setOnClickListener(new View.OnClickListener() {
@@ -124,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                     playerToMove = !playerToMove;
                     player = players.get(!playerToMove ? 0 : 1) ; //playerToMove==false => 0 otherwise => 1
                     //Log.i("player", String.valueOf(player.getColor()));
-                    playerToMoveTV.setText(!playerToMove ? R.string.red_to_move : R.string.gray_to_move);
+                    playerToMoveTV.setText(!playerToMove ? R.string.red_to_move : R.string.brown_to_move);
                     Random r = new Random();
                     diceVal1 = 1 + r.nextInt(6);//generates random integer in range [0, 6)
                     player.setAvailableMoves(diceVal1);
@@ -197,6 +228,176 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        menuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //saves game state
+                Model model = new Model(changeToRoll, gameEnded, triangles, hrPieces, players, playerToMove, player, diceVal1, diceVal2);
+
+                SharedPreferences sharedPreferences = getSharedPreferences("PREF", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
+                editor.apply();
+
+                Gson gson = new Gson();
+                String json = gson.toJson(model);
+                editor.putString("model", json);
+                editor.apply();
+
+                Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        //saves game on app close/pause
+        Model model = new Model(changeToRoll, gameEnded, triangles, hrPieces, players, playerToMove, player, diceVal1, diceVal2);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("PREF", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+
+        Gson gson = new Gson();
+        String json = gson.toJson(model);
+        editor.putString("model", json);
+        editor.apply();
+        Log.i("modelP", json);
+    }
+
+    private void setValuesFromModel(Model model) {
+
+
+        this.changeToRoll = model.changeToRoll;
+        this.diceVal1 = model.diceVal1;
+        this.diceVal2 = model.diceVal2;
+        this.gameEnded = model.gameEnded;
+        this.hrPieces = new Piece(model.hrPieces);
+        this.player = model.player;
+        this.players = new ArrayList<>();
+        for(int i = 0; i < model.players.size(); i++) {
+            players.add(new Player(model.players.get(i)));
+        }
+        this.playerToMove = model.playerToMove;
+        triangles = new ArrayList<>();
+        for(int i = 0; i < model.triangles.size(); i++) {
+            triangles.add(new Triangle(model.triangles.get(i)));
+        }
+
+        if(player == null){
+            player = players.get(!playerToMove ? 0 : 1);
+        }
+
+        screenView.setTriangles(triangles);
+        screenView.setHitPieces(hrPieces);
+        screenView.setGameStarted(true);
+        screenView.invalidate(); // force redraw to show the now drawn pieces
+
+        playerToMoveTV.setText(!playerToMove ? R.string.red_to_move : R.string.brown_to_move);
+        rollButton.setText(R.string.roll);
+
+
+        if(player.getAvailableMoves() == 0 && player.getRolledDice())
+            turnEndTV.setText(R.string.turn_end);
+        else
+            turnEndTV.setText(null);
+
+        playerToMoveTV.setText(!playerToMove ? R.string.red_to_move : R.string.brown_to_move);
+
+        if(player.getAvailableDice()[0]) {
+            switch (diceVal1) {//change the dice image accordingly
+                case 1:
+                    firstDice.setImageResource(R.drawable.dice1);
+                    break;
+                case 2:
+                    firstDice.setImageResource(R.drawable.dice2);
+                    break;
+                case 3:
+                    firstDice.setImageResource(R.drawable.dice3);
+                    break;
+                case 4:
+                    firstDice.setImageResource(R.drawable.dice4);
+                    break;
+                case 5:
+                    firstDice.setImageResource(R.drawable.dice5);
+                    break;
+                case 6:
+                    firstDice.setImageResource(R.drawable.dice6);
+                    break;
+            }
+        }
+        if(player.getAvailableDice()[1]) {
+            switch (diceVal2) {//change the dice image accordingly
+                case 1:
+                    secondDice.setImageResource(R.drawable.dice1);
+                    break;
+                case 2:
+                    secondDice.setImageResource(R.drawable.dice2);
+                    break;
+                case 3:
+                    secondDice.setImageResource(R.drawable.dice3);
+                    break;
+                case 4:
+                    secondDice.setImageResource(R.drawable.dice4);
+                    break;
+                case 5:
+                    secondDice.setImageResource(R.drawable.dice5);
+                    break;
+                case 6:
+                    secondDice.setImageResource(R.drawable.dice6);
+                    break;
+            }
+        }
+        if(player.getAvailableDice()[2]) {
+            switch (diceVal1) {//change the dice image accordingly
+                case 1:
+                    thirdDice.setImageResource(R.drawable.dice1);
+                    break;
+                case 2:
+                    thirdDice.setImageResource(R.drawable.dice2);
+                    break;
+                case 3:
+                    thirdDice.setImageResource(R.drawable.dice3);
+                    break;
+                case 4:
+                    thirdDice.setImageResource(R.drawable.dice4);
+                    break;
+                case 5:
+                    thirdDice.setImageResource(R.drawable.dice5);
+                    break;
+                case 6:
+                    thirdDice.setImageResource(R.drawable.dice6);
+                    break;
+            }
+        }
+        if(player.getAvailableDice()[3]) {
+            switch (diceVal1) {//change the dice image accordingly
+                case 1:
+                    fourthDice.setImageResource(R.drawable.dice1);
+                    break;
+                case 2:
+                    fourthDice.setImageResource(R.drawable.dice2);
+                    break;
+                case 3:
+                    fourthDice.setImageResource(R.drawable.dice3);
+                    break;
+                case 4:
+                    fourthDice.setImageResource(R.drawable.dice4);
+                    break;
+                case 5:
+                    fourthDice.setImageResource(R.drawable.dice5);
+                    break;
+                case 6:
+                    fourthDice.setImageResource(R.drawable.dice6);
+                    break;
+            }
+        }
     }
 
     public boolean canRemovePieces() {
@@ -381,8 +582,8 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean isBeingRemoved(int x, int y, int color) {
         //final float dist2R = (float) 0.026; //distance between 2 removed pieces <=> height of a drawed removed piece
-        final float xStart = (float) (screenView.width * 0.956);
-        final float xEnd = (float) (screenView.width * 0.99);
+        final float xStart = (float) ((screenView.width - screenView.cutoutOffset) * 0.956);
+        final float xEnd = (float) ((screenView.width - screenView.cutoutOffset) * 0.99);
         final float yRedStart = (float) (screenView.height * 0.06);
         final float yRedEnd = (float) (screenView.height * 0.45);
         final float yBrownStart = (float) (screenView.height * 0.55);
@@ -404,7 +605,6 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    // https://stackoverflow.com/questions/3476779/how-to-get-the-touch-position-in-android
     public boolean onTouchEvent(MotionEvent event) {
         int x = (int) event.getX();
         int y = (int) event.getY();
@@ -628,24 +828,21 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             //end game
+                            SharedPreferences sharedPreferences = getSharedPreferences("PREF", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+
                             if(player.getPiecesOnBoard() == 0){
-                                new AlertDialog.Builder(this) //https://stackoverflow.com/questions/2115758/how-do-i-display-an-alert-dialog-on-android
+                                new AlertDialog.Builder(this)
                                         .setTitle(R.string.congratulations)
                                         .setMessage(player.getColor() == 0 ? R.string.red_won : R.string.brown_won)
-                                .setPositiveButton(R.string.restart, new DialogInterface.OnClickListener() {
+                                .setNegativeButton(R.string.exit_to_menu, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        //restart activity
-                                        //https://stackoverflow.com/questions/3053761/reload-activity-in-android
-                                        finish();
-                                        startActivity(getIntent());
-                                    }
-                                })
-                                .setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        //exit
-                                        finishAndRemoveTask();
+                                        Model model = new Model(true, gameEnded, triangles, hrPieces, players, playerToMove, player, diceVal1, diceVal2);
+                                        editor.apply();
+                                        //exit to menu
+                                        Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+                                        startActivity(intent);
                                     }
                                 })
                                 .show();
@@ -800,7 +997,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    if(player.getAvailableMoves() == 0 || checkTurnEnd()) {
+                    if((player.getAvailableMoves() == 0 && player.getRolledDice()) || checkTurnEnd()) {
                         turnEndTV.setText(R.string.turn_end);
                         player.setAvailableMoves(0);
                         player.setRolledDouble(false);

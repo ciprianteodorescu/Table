@@ -6,13 +6,13 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class Triangle extends Drawable {
+import java.io.Serializable;
+
+public class Triangle extends Drawable implements Serializable {
     public static final int TOTAL = 24; //24 triangles on board
     public static int RADIUS;
 
@@ -37,7 +37,7 @@ public class Triangle extends Drawable {
     private int[] colors = new int[3];
 
     private int pieceColor; //color of pieces on triangle 0=brown, 1=red, -1=empty
-    private Paint color = new Paint();
+    private CustomPaint color = new CustomPaint();
     private int nPieces; //no. of pieces on triangle
     private int trNo; //number of triangle, range [1 to 24]
     private int hitPieces;
@@ -47,8 +47,24 @@ public class Triangle extends Drawable {
     private boolean drawMovingPiece; //decide if to draw a piece while it's being dragged
     private int movingX, movingY;
 
+    public Triangle(Triangle triangle) {
+        this.screenWidth = triangle.screenWidth;
+        this.screenHeight = triangle.screenHeight;
+        RADIUS = (int) ((screenWidth + screenHeight) * dist2Tr / 4.5);
+        this.verts = triangle.verts;
+        this.colors = triangle.colors;
+        this.pieceColor = triangle.pieceColor;
+        this.color = triangle.color;
+        this.nPieces = triangle.nPieces;
+        this.trNo = triangle.trNo;
+        this.hitPieces = triangle.hitPieces;
+        this.drawPossibleMoves = triangle.drawPossibleMoves;
+        this.drawMovingPiece = triangle.drawMovingPiece;
+        this.movingX = triangle.movingX;
+        this.movingY = triangle.movingY;
+    }
 
-    public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
+    /*public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
         //Log.i("h,w = ", screenHeight + ", " + screenWidth);
         this.hitPieces = 0;
         this.screenWidth = (int) (screenWidth - cutoutOffset);
@@ -73,9 +89,9 @@ public class Triangle extends Drawable {
             this.color.setColor(Color.rgb(190, 45, 50));
         else if(this.pieceColor == 1) //brown
             this.color.setColor(Color.rgb(145, 145, 145));
-    }
+    }*/
 
-    /*public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
+    public Triangle(int trNo, int screenWidth, int screenHeight, double cutoutOffset){
         //Log.i("h,w = ", screenHeight + ", " + screenWidth);
         this.hitPieces = 0;
         this.screenWidth = (int) (screenWidth - cutoutOffset);
@@ -116,13 +132,12 @@ public class Triangle extends Drawable {
             this.color.setColor(Color.rgb(190, 45, 50));
         else if(this.pieceColor == 1) //brown
             this.color.setColor(Color.rgb(145, 145, 145));
-    }*/
+    }
 
 
 
     @Override
     public void draw(@NonNull Canvas canvas) {
-
 
         switch (trNo){
             case 1: case 2: case 3: case 4: case 5: case 6: //1st quarter
@@ -133,8 +148,8 @@ public class Triangle extends Drawable {
                     canvas.drawCircle((int)(screenWidth*(xQ1Start+(6-trNo)*dist2Tr)), (int)(screenHeight*yQ1Start-(i-1)*2*RADIUS-RADIUS), RADIUS, color);
                 }
                 if(nPieces > 5) {
-                    Paint textPaint = new Paint();
-                    textPaint.setStyle(Paint.Style.FILL);
+                    android.graphics.Paint textPaint = new android.graphics.Paint();
+                    textPaint.setStyle(android.graphics.Paint.Style.FILL);
                     textPaint.setColor(Color.rgb(255, 200, 50));
                     textPaint.setTextSize((int)(RADIUS*1.5));
                     canvas.drawText("+" + (nPieces - 5), (int)(verts[0] + RADIUS/1.5), (int)(verts[1] - RADIUS/2), textPaint);
@@ -148,8 +163,8 @@ public class Triangle extends Drawable {
                     canvas.drawCircle((int)(screenWidth*(xQ2Start+(12-trNo)*dist2Tr)), (int)(screenHeight*yQ2Start-(i-1)*2*RADIUS-RADIUS), RADIUS, color);
                 }
                 if(nPieces > 5) {
-                    Paint textPaint = new Paint();
-                    textPaint.setStyle(Paint.Style.FILL);
+                    android.graphics.Paint textPaint = new android.graphics.Paint();
+                    textPaint.setStyle(android.graphics.Paint.Style.FILL);
                     textPaint.setColor(Color.rgb(255, 200, 50));
                     textPaint.setTextSize((int)(RADIUS*1.5));
                     canvas.drawText("+" + (nPieces - 5), (int)(verts[0] + RADIUS/1.5), (int)(verts[1] - RADIUS/2), textPaint);
@@ -163,8 +178,8 @@ public class Triangle extends Drawable {
                     canvas.drawCircle((int)(screenWidth*(xQ3Start-(13-trNo)*dist2Tr)), (int)(screenHeight*yQ3Start+(i-1)*2*RADIUS+RADIUS), RADIUS, color);
                 }
                 if(nPieces > 5) {
-                    Paint textPaint = new Paint();
-                    textPaint.setStyle(Paint.Style.FILL);
+                    android.graphics.Paint textPaint = new android.graphics.Paint();
+                    textPaint.setStyle(android.graphics.Paint.Style.FILL);
                     textPaint.setColor(Color.rgb(255, 200, 50));
                     textPaint.setTextSize((int)(RADIUS*1.5));
                     canvas.drawText("+" + (nPieces - 5), (int)(verts[0] + RADIUS/1.5), (int)(verts[1] + RADIUS*1.5), textPaint);
@@ -178,8 +193,8 @@ public class Triangle extends Drawable {
                     canvas.drawCircle((int)(screenWidth*(xQ4Start-(19-trNo)*dist2Tr)), (int)(screenHeight*yQ4Start+(i-1)*2*RADIUS+RADIUS), RADIUS, color);
                 }
                 if(nPieces > 5) {
-                    Paint textPaint = new Paint();
-                    textPaint.setStyle(Paint.Style.FILL);
+                    android.graphics.Paint textPaint = new android.graphics.Paint();
+                    textPaint.setStyle(android.graphics.Paint.Style.FILL);
                     textPaint.setColor(Color.rgb(255, 200, 50));
                     textPaint.setTextSize((int)(RADIUS*1.5));
                     canvas.drawText("+" + (nPieces - 5), (int)(verts[0] + RADIUS/1.5), (int)(verts[1] + RADIUS*1.5), textPaint);
@@ -187,28 +202,6 @@ public class Triangle extends Drawable {
                 break;
         }
 
-        /*switch (trNo){
-            case 1: case 2: case 3: case 4: case 5: case 6: //1st quarter
-                for(int i = 1; i <= nPieces; i++){
-                    canvas.drawCircle((int)(screenWidth*(xQ1Start+(6-trNo)*dist2Tr)), (int)(screenHeight*yQ1Start-(i-1)*2*RADIUS-RADIUS), RADIUS, color);
-                }
-                break;
-            case 7: case 8: case 9: case 10: case 11: case 12: //2nd quarter
-                for(int i = 1; i <= nPieces; i++){
-                    canvas.drawCircle((int)(screenWidth*(xQ2Start+(12-trNo)*dist2Tr)), (int)(screenHeight*yQ2Start-(i-1)*2*RADIUS-RADIUS), RADIUS, color);
-                }
-                break;
-            case 13: case 14: case 15: case 16: case 17: case 18: //3rd quarter
-                for(int i = 1; i <= nPieces; i++){
-                    canvas.drawCircle((int)(screenWidth*(xQ3Start-(13-trNo)*dist2Tr)), (int)(screenHeight*yQ3Start+(i-1)*2*RADIUS+RADIUS), RADIUS, color);
-                }
-                break;
-            case 19: case 20: case 21: case 22: case 23: case 24: //4th quarter
-                for(int i = 1; i <= nPieces; i++){
-                    canvas.drawCircle((int)(screenWidth*(xQ4Start-(19-trNo)*dist2Tr)), (int)(screenHeight*yQ4Start+(i-1)*2*RADIUS+RADIUS), RADIUS, color);
-                }
-                break;
-        }*/
 
         if(drawPossibleMoves){
             colors[0] = Color.argb(150, 0, 200, 200);
@@ -251,7 +244,6 @@ public class Triangle extends Drawable {
                     break;
             }
 
-            //https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes
             canvas.drawVertices(Canvas.VertexMode.TRIANGLES, verts.length, verts, 0, null, 0, colors, 0, null, 0, 0, new Paint());
         }
 
@@ -357,7 +349,7 @@ public class Triangle extends Drawable {
         return color;
     }
 
-    public void setColor(Paint color) {
+    public void setColor(CustomPaint color) {
         this.color = color;
     }
 
@@ -415,6 +407,13 @@ public class Triangle extends Drawable {
 
     public void setMovingY(int movingY) {
         this.movingY = movingY;
+    }
+
+    public void setColors() {
+        if(this.pieceColor == 0) //red
+            this.color.setColor(Color.rgb(190, 45, 50));
+        else if(this.pieceColor == 1) //brown
+            this.color.setColor(Color.rgb(145, 145, 145));
     }
 
     public void setMoving(int x, int y){

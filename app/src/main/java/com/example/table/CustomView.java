@@ -14,11 +14,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.AppCompatImageView;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class CustomView extends View {
-    private List<Triangle> triangles = new ArrayList<Triangle>();
+    public List<Triangle> triangles = new ArrayList<Triangle>();
     private Piece hitPieces;
     private boolean gameStarted = false;
     public double cutoutOffset;
@@ -28,7 +32,6 @@ public class CustomView extends View {
     private float[] verts = new float[6]; //coordinates of triangle vertices
     private int[] colors = new int[6];
 
-    //https://www.youtube.com/watch?v=sb9OEl4k9Dk
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -44,41 +47,41 @@ public class CustomView extends View {
         for(int trNo = 1; trNo <= Triangle.TOTAL; trNo++ ){
             switch (trNo){
                 case 1: case 2: case 3: case 4: case 5: case 6: //1st quarter
-                    verts[0] = (float) (width * (Triangle.xQ1Start + (6 - trNo) * Triangle.dist2Tr - Triangle.dist2Tr / 2));
+                    verts[0] = (float) ((width - cutoutOffset) * (Triangle.xQ1Start + (6 - trNo) * Triangle.dist2Tr - Triangle.dist2Tr / 2));
                     verts[1] = (float) (height * Triangle.yQ1Start);
-                    verts[2] = (float) (width * (Triangle.xQ1Start + (6 - trNo) * Triangle.dist2Tr + Triangle.dist2Tr / 2));
+                    verts[2] = (float) ((width - cutoutOffset) * (Triangle.xQ1Start + (6 - trNo) * Triangle.dist2Tr + Triangle.dist2Tr / 2));
                     verts[3] = (float) (height * Triangle.yQ1Start);
-                    verts[4] = (float) (width * (Triangle.xQ1Start + (6 - trNo) * Triangle.dist2Tr));
+                    verts[4] = (float) ((width - cutoutOffset) * (Triangle.xQ1Start + (6 - trNo) * Triangle.dist2Tr));
                     verts[5] = (float) (height * 0.55);
 
                     canvas.drawVertices(Canvas.VertexMode.TRIANGLES, verts.length, verts, 0, null, 0, colors, 3*((trNo+1)%2), null, 0, 0, new Paint());
                     break;
                 case 7: case 8: case 9: case 10: case 11: case 12: //2nd quarter
-                    verts[0] = (float) (width * (Triangle.xQ2Start + (12 - trNo) * Triangle.dist2Tr - Triangle.dist2Tr / 2));
+                    verts[0] = (float) ((width - cutoutOffset) * (Triangle.xQ2Start + (12 - trNo) * Triangle.dist2Tr - Triangle.dist2Tr / 2));
                     verts[1] = (float) (height * Triangle.yQ2Start);
-                    verts[2] = (float) (width * (Triangle.xQ2Start + (12 - trNo) * Triangle.dist2Tr + Triangle.dist2Tr / 2));
+                    verts[2] = (float) ((width - cutoutOffset) * (Triangle.xQ2Start + (12 - trNo) * Triangle.dist2Tr + Triangle.dist2Tr / 2));
                     verts[3] = (float) (height * Triangle.yQ2Start);
-                    verts[4] = (float) (width * (Triangle.xQ2Start + (12 - trNo) * Triangle.dist2Tr));
+                    verts[4] = (float) ((width - cutoutOffset) * (Triangle.xQ2Start + (12 - trNo) * Triangle.dist2Tr));
                     verts[5] = (float) (height * 0.55);
 
                     canvas.drawVertices(Canvas.VertexMode.TRIANGLES, verts.length, verts, 0, null, 0, colors, 3*((trNo+1)%2), null, 0, 0, new Paint());
                     break;
                 case 13: case 14: case 15: case 16: case 17: case 18: //3rd quarter
-                    verts[0] = (float) (width * (Triangle.xQ3Start - (13 - trNo) * Triangle.dist2Tr - Triangle.dist2Tr / 2));
+                    verts[0] = (float) ((width - cutoutOffset) * (Triangle.xQ3Start - (13 - trNo) * Triangle.dist2Tr - Triangle.dist2Tr / 2));
                     verts[1] = (float) (height * Triangle.yQ3Start);
-                    verts[2] = (float) (width * (Triangle.xQ3Start - (13 - trNo) * Triangle.dist2Tr + Triangle.dist2Tr / 2));
+                    verts[2] = (float) ((width - cutoutOffset) * (Triangle.xQ3Start - (13 - trNo) * Triangle.dist2Tr + Triangle.dist2Tr / 2));
                     verts[3] = (float) (height * Triangle.yQ3Start);
-                    verts[4] = (float) (width * (Triangle.xQ3Start - (13 - trNo) * Triangle.dist2Tr));
+                    verts[4] = (float) ((width - cutoutOffset) * (Triangle.xQ3Start - (13 - trNo) * Triangle.dist2Tr));
                     verts[5] = (float) (height * 0.45);
 
                     canvas.drawVertices(Canvas.VertexMode.TRIANGLES, verts.length, verts, 0, null, 0, colors, 3*((trNo+1)%2), null, 0, 0, new Paint());
                     break;
                 case 19: case 20: case 21: case 22: case 23: case 24: //4th quarter
-                    verts[0] = (float) (width * (Triangle.xQ4Start - (19 - trNo) * Triangle.dist2Tr - Triangle.dist2Tr / 2));
+                    verts[0] = (float) ((width - cutoutOffset) * (Triangle.xQ4Start - (19 - trNo) * Triangle.dist2Tr - Triangle.dist2Tr / 2));
                     verts[1] = (float) (height * Triangle.yQ4Start);
-                    verts[2] = (float) (width * (Triangle.xQ4Start - (19 - trNo) * Triangle.dist2Tr + Triangle.dist2Tr / 2));
+                    verts[2] = (float) ((width - cutoutOffset) * (Triangle.xQ4Start - (19 - trNo) * Triangle.dist2Tr + Triangle.dist2Tr / 2));
                     verts[3] = (float) (height * Triangle.yQ4Start);
-                    verts[4] = (float) (width * (Triangle.xQ4Start - (19 - trNo) * Triangle.dist2Tr));
+                    verts[4] = (float) ((width - cutoutOffset) * (Triangle.xQ4Start - (19 - trNo) * Triangle.dist2Tr));
                     verts[5] = (float) (height * 0.45);
 
                     canvas.drawVertices(Canvas.VertexMode.TRIANGLES, verts.length, verts, 0, null, 0, colors, 3*((trNo+1)%2), null, 0, 0, new Paint());
@@ -89,6 +92,7 @@ public class CustomView extends View {
         if(gameStarted) {
             for (int i = 0; i < Triangle.TOTAL; i++) {
                 triangles.get(i).draw(canvas);
+                //Log.i("pDraw", ""+i);
             }
             hitPieces.draw(canvas);
         }
@@ -99,6 +103,9 @@ public class CustomView extends View {
     }
     public void setGameStarted(boolean gameStarted) {
         this.gameStarted = gameStarted;
+    }
+    public boolean getGameStarted() {
+        return this.gameStarted;
     }
 
     public List<Triangle> initializeTriangles() {

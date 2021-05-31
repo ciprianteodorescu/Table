@@ -1,27 +1,26 @@
 package com.example.table;
 
-import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
-import android.graphics.RadialGradient;
 import android.graphics.drawable.Drawable;
-import android.telephony.RadioAccessSpecifier;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class Piece extends Drawable {
+import java.io.Serializable;
+
+public class Piece extends Drawable implements Serializable {
     private final int RADIUS = Triangle.RADIUS;
 
     //0=red, 1=brown
-    private Paint colorRed = new Paint();
-    private Paint colorBrown = new Paint();
-    private final Paint black = new Paint();
-    private final Paint possible = new Paint();
+    private CustomPaint colorRed = new CustomPaint();
+    private CustomPaint colorBrown = new CustomPaint();
+    private CustomPaint black = new CustomPaint();
+    private CustomPaint possible = new CustomPaint();
     private int redHit;
     private int brownHit;
     private boolean drawMovingRedHit;
@@ -43,6 +42,24 @@ public class Piece extends Drawable {
     private final float yBrownStart = (float) 0.55;
     private final float yBrownEnd = (float) 0.94;
 
+    public Piece(Piece piece) {
+        this.possible.setColor(Color.argb(150, 0, 200, 200));
+        this.black.setColor(Color.rgb(0, 0, 0));
+        this.colorRed.setColor(Color.rgb(190, 45, 50));
+        this.colorBrown.setColor(Color.rgb(145, 145, 145));
+        this.redHit = piece.redHit;
+        this.brownHit = piece.brownHit;
+        this.drawMovingRedHit = piece.drawMovingRedHit;
+        this.drawMovingBrownHit = piece.drawMovingBrownHit;
+        this.x = piece.x;
+        this.y = piece.y;
+        this.redRemoved = piece.redRemoved;
+        this.brownRemoved = piece.brownRemoved;
+        this.screenWidth = piece.screenWidth;
+        this.screenHeight = piece.screenHeight;
+        this.drawRedPossible = piece.drawRedPossible;
+        this.drawBrownPossible = piece.drawBrownPossible;
+    }
 
     public Piece(int screenWidth, int screenHeight, double cutoutOffset) {
         this.drawRedPossible = false;
@@ -61,22 +78,22 @@ public class Piece extends Drawable {
 
     @Override
     public void draw(@NonNull Canvas canvas) {
+
         if(redHit > 0) {
             canvas.drawCircle((float) (screenWidth * 0.5), (float) (screenHeight * 0.5 + RADIUS), RADIUS, colorRed);
             if(redHit > 1) {
-                Paint textPaint = new Paint();
-                textPaint.setStyle(Paint.Style.FILL);
+                android.graphics.Paint textPaint = new android.graphics.Paint();
+                textPaint.setStyle(android.graphics.Paint.Style.FILL);
                 textPaint.setColor(colorBrown.getColor());
                 textPaint.setTextSize((float)(RADIUS));
                 canvas.drawText("+" + (redHit - 1), (float) (screenWidth * 0.487), (float) (screenHeight * 0.5 + RADIUS * 1.3), textPaint);
             }
         }
         if(brownHit > 0) {
-            //canvas.drawRoundRect((float)(screenWidth * 0.475), (float)(screenHeight * 0.5), (float)(screenWidth * 0.525), (float)(screenHeight * 0.55), RADIUS, RADIUS, colorBrown);
             canvas.drawCircle((float) (screenWidth * 0.5), (float) (screenHeight * 0.5 - RADIUS), RADIUS, colorBrown);
             if(brownHit > 1) {
-                Paint textPaint = new Paint();
-                textPaint.setStyle(Paint.Style.FILL);
+                android.graphics.Paint textPaint = new android.graphics.Paint();
+                textPaint.setStyle(android.graphics.Paint.Style.FILL);
                 textPaint.setColor(colorRed.getColor());
                 textPaint.setTextSize((float)(RADIUS));
                 canvas.drawText("+" + (brownHit - 1), (float) (screenWidth * 0.487), (float) (screenHeight * 0.5 - RADIUS * 0.7), textPaint);
@@ -229,6 +246,17 @@ public class Piece extends Drawable {
         this.drawMovingBrownHit = drawMovingBrownHit;
         this.x = 0;
         this.y = 0;
+    }
+
+    public void setColors() {
+        this.possible.setColor(Color.argb(150, 0, 200, 200));
+        this.black.setColor(Color.rgb(0, 0, 0));
+        this.colorRed.setColor(Color.rgb(190, 45, 50));
+        this.colorBrown.setColor(Color.rgb(145, 145, 145));
+    }
+
+    public int getColorRed() {
+        return colorRed.getColor();
     }
 
     @Override

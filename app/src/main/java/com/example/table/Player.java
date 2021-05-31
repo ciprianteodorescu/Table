@@ -1,6 +1,8 @@
 package com.example.table;
 
-public class Player {
+import java.io.Serializable;
+
+public class Player implements Serializable {
 
     private int color; //0=red, 1=brown
     private int piecesOnBoard;
@@ -11,6 +13,19 @@ public class Player {
     private boolean rolledDouble;
     private boolean canRemovePieces;
 
+    public Player(Player player) {
+        this.color = player.color;
+        this.piecesOnBoard = player.piecesOnBoard;
+        this.hitPieces = player.hitPieces;
+        this.availableMoves = player.availableMoves;
+        this.availableDice[0] = player.availableDice[0];
+        this.availableDice[1] = player.availableDice[1];
+        this.availableDice[2] = player.availableDice[2];
+        this.availableDice[3] = player.availableDice[3];
+        this.rolledDice = player.rolledDice;
+        this.rolledDouble = player.rolledDouble;
+        this.canRemovePieces = player.canRemovePieces;
+    }
 
     public Player(int color) {
         this.color = color;

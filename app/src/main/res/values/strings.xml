@@ -1,12 +1,17 @@
 <resources>
     <string name="app_name">Table</string>
+    <string name="title">Backgammon</string>
     <string name="roll">ROLL</string>
     <string name="red_to_move">RED</string>
-    <string name="gray_to_move">GRAY</string>
+    <string name="brown_to_move">GREY</string>
     <string name="turn_end">TURN END!</string>
     <string name="red_won">RED WON!</string>
     <string name="brown_won">BROWN WON!</string>
     <string name="congratulations">CONGRATULATIONS!</string>
-    <string name="restart">RESTART GAME</string>
-    <string name="exit">EXIT</string>
+    <string name="restart">Restart game</string>
+    <string name="exit_to_menu">Exit to menu</string>
+    <string name="new_game">New game</string>
+    <string name="continue_game">Continue last game</string>
+    <string name="menu">Menu</string>
+    <string name="start">START</string>
 </resources>
